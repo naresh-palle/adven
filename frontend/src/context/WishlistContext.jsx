@@ -1,80 +1,62 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '../lib/supabase';
 
 const WishlistContext = createContext();
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState([]);
-  const { user, token } = useAuth();
+  const { user } = useAuth();
 
   const fetchWishlist = async () => {
-    if (!token) {
+    if (!user) {
       setWishlist([]);
       return;
     }
-    try {
-      const response = await fetch('/api/wishlist', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setWishlist(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch wishlist:', error);
+    const { data, error } = await supabase
+      .from('wishlist')
+      .select('product_id, products(*)')
+      .eq('user_id', user.id);
+
+    if (!error && data) {
+      setWishlist(data.map((row) => row.products));
     }
   };
 
   useEffect(() => {
     fetchWishlist();
-  }, [user, token]);
+  }, [user]);
 
   const toggleWishlist = async (product) => {
-    if (!token) {
-      return { success: false, message: 'Please login to use Wishlist' };
-    }
+    if (!user) return { success: false, message: 'Please login to use Wishlist' };
 
-    const isFav = wishlist.some((item) => item._id === product._id);
+    const isFav = wishlist.some((item) => item.id === product.id);
 
-    try {
-      if (isFav) {
-        // Remove
-        const response = await fetch(`/api/wishlist/${product._id}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          setWishlist((prev) => prev.filter((item) => item._id !== product._id));
-          return { success: true, removed: true };
-        }
-      } else {
-        // Add
-        const response = await fetch('/api/wishlist', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ productId: product._id }),
-        });
-        if (response.ok) {
-          setWishlist((prev) => [...prev, product]);
-          return { success: true, added: true };
-        }
+    if (isFav) {
+      const { error } = await supabase
+        .from('wishlist')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('product_id', product.id);
+
+      if (!error) {
+        setWishlist((prev) => prev.filter((item) => item.id !== product.id));
+        return { success: true, removed: true };
       }
-    } catch (error) {
-      console.error(error);
+    } else {
+      const { error } = await supabase
+        .from('wishlist')
+        .insert({ user_id: user.id, product_id: product.id });
+
+      if (!error) {
+        setWishlist((prev) => [...prev, product]);
+        return { success: true, added: true };
+      }
     }
     return { success: false, message: 'Wishlist sync failed' };
   };
 
-  const inWishlist = (productId) => {
-    return wishlist.some((item) => item._id === productId);
-  };
+  const inWishlist = (productId) => wishlist.some((item) => item.id === productId);
 
   return (
     <WishlistContext.Provider value={{ wishlist, toggleWishlist, inWishlist, fetchWishlist }}>

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
-import { ArrowRight, ChevronRight, Play, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -14,9 +15,11 @@ export const Home = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const response = await fetch('/api/products/featured');
-        if (response.ok) {
-          const data = await response.json();
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('featured', true);
+        if (!error && data) {
           setFeaturedProducts(data);
           setFilteredProducts(data);
         }

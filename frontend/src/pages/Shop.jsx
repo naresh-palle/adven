@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const CATEGORIES = [
   'T-Shirts',
@@ -53,13 +54,13 @@ export const Shop = () => {
   const [size, setSize] = useState(activeSize);
   const [sortBy, setSortBy] = useState(activeSortBy);
 
-  // Derived available sizes and displayed products
+  // Supabase stores sizes as plain string array e.g. ['S','M','L']
   const availableSizes = products.length > 0
-    ? Array.from(new Set(products.flatMap(p => p.sizes.map(s => s.size)))).sort(sortSizes)
+    ? Array.from(new Set(products.flatMap(p => p.sizes || []))).sort(sortSizes)
     : ['S', 'M', 'L', 'XL', '30', '32', '34', '36'];
 
   const displayedProducts = activeSize
-    ? products.filter(p => p.sizes.some(s => s.size === activeSize && s.stock > 0))
+    ? products.filter(p => (p.sizes || []).includes(activeSize))
     : products;
 
   // Sync state if URL query parameters change
@@ -71,27 +72,25 @@ export const Shop = () => {
     setSortBy(activeSortBy);
   }, [activeCategory, activeSearch, activeMinPrice, activeMaxPrice, activeSize, activeSortBy]);
 
-  // Fetch products whenever active filters update (excluding activeSize from API parameters)
+  // Fetch products from Supabase with client-side filters
   useEffect(() => {
     const fetchFilteredProducts = async () => {
       setLoading(true);
       try {
-        let url = `/api/products?`;
-        const params = new URLSearchParams();
-        
-        if (activeCategory) params.append('category', activeCategory);
-        if (activeSearch) params.append('search', activeSearch);
-        if (activeMinPrice) params.append('minPrice', activeMinPrice);
-        if (activeMaxPrice) params.append('maxPrice', activeMaxPrice);
-        if (activeSortBy) params.append('sortBy', activeSortBy);
-        
-        url += params.toString();
+        let query = supabase.from('products').select('*');
 
-        const response = await fetch(url);
-        if (response.ok) {
-          const data = await response.json();
-          setProducts(data);
-        }
+        if (activeCategory) query = query.eq('category', activeCategory);
+        if (activeSearch) query = query.ilike('name', `%${activeSearch}%`);
+        if (activeMinPrice) query = query.gte('price', Number(activeMinPrice));
+        if (activeMaxPrice) query = query.lte('price', Number(activeMaxPrice));
+
+        if (activeSortBy === 'price_asc') query = query.order('price', { ascending: true });
+        else if (activeSortBy === 'price_desc') query = query.order('price', { ascending: false });
+        else if (activeSortBy === 'newest') query = query.order('created_at', { ascending: false });
+        else query = query.order('created_at', { ascending: false });
+
+        const { data, error } = await query;
+        if (!error && data) setProducts(data);
       } catch (error) {
         console.error('Failed to load products:', error);
       } finally {
@@ -105,11 +104,7 @@ export const Shop = () => {
   // Auto-clear activeSize filter if it is no longer available in the fetched products
   useEffect(() => {
     if (activeSize && products.length > 0 && !loading) {
-      const sizes = Array.from(
-        new Set(
-          products.flatMap(p => p.sizes.map(s => s.size))
-        )
-      );
+      const sizes = Array.from(new Set(products.flatMap(p => p.sizes || [])));
       if (!sizes.includes(activeSize)) {
         const newParams = { ...Object.fromEntries(searchParams.entries()) };
         delete newParams.size;

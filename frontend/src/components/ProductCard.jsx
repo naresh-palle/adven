@@ -10,36 +10,32 @@ export const ProductCard = ({ product }) => {
   const [adding, setAdding] = useState(false);
   const [hovered, setHovered] = useState(false);
 
-  const isFavorite = inWishlist(product._id);
-  const totalStock = product.sizes.reduce((acc, curr) => acc + curr.stock, 0);
-  const isOutOfStock = totalStock === 0;
+  // Supabase uses `id` (uuid), `image_urls` (text[]), `sizes` (text[]), `stock` (integer)
+  const productId = product.id || product._id;
+  const imageUrl = product.image_urls?.[0] || product.images?.[0] || '';
+  const isOutOfStock = !product.stock || product.stock === 0;
+  const isFavorite = inWishlist(productId);
 
   const handleFavoriteClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleWishlist(product);
+    toggleWishlist({ ...product, id: productId });
   };
 
   const handleQuickAdd = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (isOutOfStock) return;
-    
     setAdding(true);
-    const availableSize = product.sizes.find(s => s.stock > 0);
-    const selectedSize = availableSize ? availableSize.size : 'M';
-    
-    addToCart(product, selectedSize, 1);
-    
-    setTimeout(() => {
-      setAdding(false);
-    }, 800);
+    // Pick first available size string
+    const selectedSize = product.sizes?.[0] || 'M';
+    addToCart({ ...product, id: productId }, selectedSize, 1);
+    setTimeout(() => setAdding(false), 800);
   };
 
   return (
-    <Link 
-      to={`/product/${product._id}`} 
+    <Link
+      to={`/product/${productId}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="flex flex-col bg-white/[0.02] border border-white/[0.04] rounded-sm overflow-hidden relative transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-xl group"
@@ -61,7 +57,7 @@ export const ProductCard = ({ product }) => {
         )}
 
         {/* Heart Wishlist Button */}
-        <button 
+        <button
           onClick={handleFavoriteClick}
           className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center z-10 transition-all ${
             isFavorite ? 'bg-primary/20 border border-primary/40 text-primary' : 'bg-black/45 border border-white/5 text-text-primary hover:scale-105'
@@ -72,16 +68,14 @@ export const ProductCard = ({ product }) => {
         </button>
 
         {/* Image */}
-        <img 
-          src={product.images[0]} 
+        <img
+          src={imageUrl}
           alt={product.name}
-          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
-            hovered ? 'scale-105' : 'scale-100'
-          }`}
+          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${hovered ? 'scale-105' : 'scale-100'}`}
           loading="lazy"
         />
 
-        {/* Quick Add Overlay (slides up on hover on desktop, sticky at bottom on mobile) */}
+        {/* Quick Add Overlay */}
         {!isOutOfStock && (
           <button
             onClick={handleQuickAdd}
@@ -97,30 +91,20 @@ export const ProductCard = ({ product }) => {
 
       {/* Info details */}
       <div className="p-3 md:p-4 flex flex-col gap-1 md:gap-1.5 flex-1 min-w-0">
-        {/* Category */}
         <span className="text-[9px] md:text-[10px] text-text-muted uppercase tracking-wider block">
           {product.category}
         </span>
-
-        {/* Product Title */}
         <h4 className="text-xs md:text-sm font-medium text-text-primary truncate block">
           {product.name}
         </h4>
-
-        {/* Price & Rating */}
         <div className="flex justify-between items-center mt-1">
-          {/* Price */}
           <span className="text-sm md:text-base font-bold font-display text-primary">
-            ₹{product.price.toLocaleString('en-IN')}
+            ₹{(product.discount_price || product.price).toLocaleString('en-IN')}
           </span>
-
-          {/* Rating */}
-          {product.averageRating > 0 && (
-            <div className="flex items-center gap-0.5 text-[10px] md:text-xs text-[#ffb400]">
-              <Star size={11} fill="currentColor" className="shrink-0" />
-              <span>{product.averageRating}</span>
-              <span className="text-text-muted text-[9px] md:text-[10px]">({product.numberOfReviews})</span>
-            </div>
+          {product.discount_price && product.discount_price < product.price && (
+            <span className="text-[10px] text-text-muted line-through">
+              ₹{product.price.toLocaleString('en-IN')}
+            </span>
           )}
         </div>
       </div>

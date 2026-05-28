@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { CreditCard, Truck, ArrowLeft, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export const Checkout = () => {
   const { cartItems, totalPrice, subtotal, discountAmount, taxPrice, shippingPrice, coupon, clearCart } = useCart();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Address inputs
@@ -21,16 +22,6 @@ export const Checkout = () => {
   const [paymentStep, setPaymentStep] = useState(0); // 0: Idle, 1: Order creation, 2: Verification, 3: Success
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Dynamically load Razorpay SDK script
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -38,180 +29,60 @@ export const Checkout = () => {
       setErrorMsg('Please complete all shipping address fields.');
       return;
     }
+    if (!user) {
+      setErrorMsg('Please login to place an order.');
+      return;
+    }
 
     setErrorMsg('');
     setPaying(true);
-    setPaymentStep(1); // Creating order
-
-    const orderDetails = {
-      orderItems: cartItems.map((item) => ({
-        product: item.product,
-        name: item.name,
-        quantity: item.quantity,
-        size: item.size,
-        price: item.price,
-        image: item.image,
-      })),
-      shippingAddress: {
-        street,
-        city,
-        state,
-        postalCode,
-        phone,
-        country: 'India',
-      },
-      itemsPrice: subtotal,
-      taxPrice,
-      shippingPrice,
-      discountPrice: discountAmount,
-      totalPrice,
-      couponApplied: coupon ? coupon.code : undefined,
-    };
+    setPaymentStep(1);
 
     try {
-      // 1. Create Razorpay order ID in backend (this performs dry-run stock check)
-      const orderRes = await fetch('/api/payments/order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount: totalPrice,
-          orderItems: orderDetails.orderItems,
-        }),
-      });
+      // 1. Create order in Supabase
+      const shippingAddress = `${street}, ${city}, ${state} - ${postalCode}, India. Phone: ${phone}`;
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total_amount: totalPrice,
+          payment_status: 'pending',
+          order_status: 'processing',
+          shipping_address: shippingAddress,
+        })
+        .select()
+        .single();
 
-      const orderData = await orderRes.json();
+      if (orderError) throw new Error(orderError.message);
 
-      if (!orderRes.ok) {
-        setErrorMsg(orderData.message || 'Inventory allocation or order creation failed.');
+      // 2. Insert order items
+      const orderItems = cartItems.map((item) => ({
+        order_id: order.id,
+        product_id: item.product,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw new Error(itemsError.message);
+
+      setPaymentStep(3);
+      clearCart();
+      setTimeout(() => {
         setPaying(false);
-        setPaymentStep(0);
-        return;
-      }
-
-      // Check if sandbox mock mode
-      if (orderData.id.startsWith('order_mock_')) {
-        console.log('--- ENTERING SANDBOX SIMULATED PAYMENT ---');
-        // Simulate payment verification delay
-        setTimeout(() => {
-          setPaymentStep(2); // Verifying
-        }, 1500);
-
-        setTimeout(async () => {
-          try {
-            const verifyRes = await fetch('/api/payments/verify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                razorpay_order_id: orderData.id,
-                razorpay_payment_id: `pay_mock_${Math.random().toString(36).substring(2, 10)}`,
-                razorpay_signature: 'sig_mock',
-                orderData: orderDetails,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyRes.ok) {
-              setPaymentStep(3); // Success
-              clearCart();
-              setTimeout(() => {
-                setPaying(false);
-                navigate(`/order-success?id=${verifyData._id}`);
-              }, 2000);
-            } else {
-              setErrorMsg(verifyData.message || 'Payment verification failed.');
-              setPaying(false);
-              setPaymentStep(0);
-            }
-          } catch (err) {
-            setErrorMsg('Network error verifying payment.');
-            setPaying(false);
-            setPaymentStep(0);
-          }
-        }, 3500);
-
-        return;
-      }
-
-      // 2. Launch actual Razorpay SDK checkout iframe
-      setPaying(false); // Hide spinner while Razorpay UI is active
-      setPaymentStep(0);
-
-      const rzpOptions = {
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: 'ADVEN STORE',
-        description: 'Luxury Sartorial Purchase',
-        order_id: orderData.id,
-        handler: async function (response) {
-          // Trigger spinner for verification phase
-          setPaying(true);
-          setPaymentStep(2); // Verifying transaction
-
-          try {
-            const verifyRes = await fetch('/api/payments/verify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                orderData: orderDetails,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-
-            if (verifyRes.ok) {
-              setPaymentStep(3); // Success
-              clearCart();
-              setTimeout(() => {
-                setPaying(false);
-                navigate(`/order-success?id=${verifyData._id}`);
-              }, 2000);
-            } else {
-              setErrorMsg(verifyData.message || 'Signature verification failed.');
-              setPaying(false);
-              setPaymentStep(0);
-            }
-          } catch (err) {
-            setErrorMsg('Network error verifying payment.');
-            setPaying(false);
-            setPaymentStep(0);
-          }
-        },
-        prefill: {
-          name: user ? user.name : '',
-          email: user ? user.email : '',
-          contact: phone,
-        },
-        theme: {
-          color: '#d4af37',
-        },
-      };
-
-      const rzp = new window.Razorpay(rzpOptions);
-      rzp.on('payment.failed', function (response) {
-        setErrorMsg(`Payment failed: ${response.error.description}`);
-      });
-      rzp.open();
-
+        navigate(`/order-success?id=${order.id}`);
+      }, 1500);
     } catch (err) {
-      setErrorMsg('Network error establishing secure connection.');
+      setErrorMsg(err.message || 'Failed to place order. Please try again.');
       setPaying(false);
       setPaymentStep(0);
     }
   };
+
+
 
   if (cartItems.length === 0 && !paying) {
     return (

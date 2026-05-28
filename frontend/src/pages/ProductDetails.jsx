@@ -5,10 +5,11 @@ import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
 import { Heart, ShoppingBag, Star, Share2, AlertTriangle } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
+import { supabase } from '../lib/supabase';
 
 export const ProductDetails = () => {
   const { id } = useParams();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const { addToCart } = useCart();
   const { toggleWishlist, inWishlist } = useWishlist();
 
@@ -32,23 +33,18 @@ export const ProductDetails = () => {
   const fetchProductDetails = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/products/${id}`);
-      if (response.ok) {
-        const data = await response.json();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*, reviews(*, profiles(full_name))')
+        .eq('id', id)
+        .single();
+      if (!error && data) {
         setProduct(data);
-        setActiveImage(data.images[0]);
-        
-        // Auto-select first in-stock size
-        const firstInStock = data.sizes.find((s) => s.stock > 0);
-        if (firstInStock) {
-          setSelectedSize(firstInStock.size);
-        }
-
-        // Cache in recently viewed list (local storage)
+        setActiveImage(data.image_urls?.[0] || '');
+        // Sizes stored as plain string array in Supabase
+        if (data.sizes?.length > 0) setSelectedSize(data.sizes[0]);
         updateRecentlyViewed(data);
-
-        // Fetch related products
-        fetchRelated(data._id);
+        fetchRelated(data.id, data.category);
       }
     } catch (error) {
       console.error('Error fetching product details:', error);
@@ -61,13 +57,15 @@ export const ProductDetails = () => {
     fetchProductDetails();
   }, [id]);
 
-  const fetchRelated = async (productId) => {
+  const fetchRelated = async (productId, category) => {
     try {
-      const res = await fetch(`/api/products/${productId}/related`);
-      if (res.ok) {
-        const data = await res.json();
-        setRelatedProducts(data);
-      }
+      const { data } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category', category)
+        .neq('id', productId)
+        .limit(4);
+      if (data) setRelatedProducts(data);
     } catch (error) {
       console.error('Error loading related items:', error);
     }
@@ -76,30 +74,26 @@ export const ProductDetails = () => {
   const updateRecentlyViewed = (currentProd) => {
     const list = localStorage.getItem('adven_recent');
     let recentList = list ? JSON.parse(list) : [];
-    recentList = recentList.filter((p) => p._id !== currentProd._id);
-    
+    recentList = recentList.filter((p) => p.id !== currentProd.id);
     recentList.unshift({
-      _id: currentProd._id,
+      id: currentProd.id,
       name: currentProd.name,
       price: currentProd.price,
-      images: currentProd.images,
+      image_urls: currentProd.image_urls,
       category: currentProd.category,
       sizes: currentProd.sizes,
       featured: currentProd.featured,
-      averageRating: currentProd.averageRating,
-      numberOfReviews: currentProd.numberOfReviews
     });
-    
     recentList = recentList.slice(0, 4);
     localStorage.setItem('adven_recent', JSON.stringify(recentList));
-    setRecentlyViewed(recentList.filter((p) => p._id !== currentProd._id));
+    setRecentlyViewed(recentList.filter((p) => p.id !== currentProd.id));
   };
 
   useEffect(() => {
     const list = localStorage.getItem('adven_recent');
     if (list && product) {
       const parsed = JSON.parse(list);
-      setRecentlyViewed(parsed.filter((p) => p._id !== product._id));
+      setRecentlyViewed(parsed.filter((p) => p.id !== product.id));
     }
   }, [product]);
 
@@ -110,33 +104,26 @@ export const ProductDetails = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) return;
-
+    if (!comment.trim() || !user) return;
     setReviewLoading(true);
     setReviewError('');
     setReviewSuccess(false);
-
     try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ rating, comment, productId: product._id }),
+      const { error } = await supabase.from('reviews').insert({
+        user_id: user.id,
+        product_id: product.id,
+        rating,
+        comment,
       });
-
-      const data = await res.json();
-
-      if (res.ok) {
+      if (!error) {
         setReviewSuccess(true);
         setComment('');
         fetchProductDetails();
       } else {
-        setReviewError(data.message || 'Failed to submit review');
+        setReviewError(error.message || 'Failed to submit review');
       }
     } catch (err) {
-      setReviewError('Error connecting to the server');
+      setReviewError('Error connecting to Supabase');
     } finally {
       setReviewLoading(false);
     }
@@ -166,10 +153,10 @@ export const ProductDetails = () => {
     );
   }
 
-  const selectedSizeStockObj = product.sizes.find((s) => s.size === selectedSize);
-  const selectedSizeStock = selectedSizeStockObj ? selectedSizeStockObj.stock : 0;
-  const isOutOfStock = product.sizes.reduce((acc, curr) => acc + curr.stock, 0) === 0;
-  const isFavorite = inWishlist(product._id);
+  // Supabase sizes are plain string arrays
+  const selectedSizeStock = product.stock ?? 99;
+  const isOutOfStock = !product.stock || product.stock === 0;
+  const isFavorite = inWishlist(product.id);
 
   return (
     <div className="container mx-auto px-4 md:px-6 pt-10 animate-fade-in">
