@@ -74,7 +74,7 @@ export const Home = () => {
               <div className="w-10 h-[1px] bg-primary"></div>
             </div>
 
-            <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-black leading-[0.95] tracking-tighter uppercase animate-fade-in duration-1000">
+            <h1 className="text-white font-display text-4xl sm:text-6xl md:text-8xl font-black leading-[0.95] tracking-tighter uppercase animate-fade-in duration-1000">
               SARTORIAL <br />
               <span className="gold-text">ESCAPE.</span>
             </h1>
@@ -132,7 +132,7 @@ export const Home = () => {
               <span className="text-xs font-semibold text-primary uppercase tracking-[0.25em]">
                 EDITORIAL / COLLECTION '26
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold uppercase leading-tight">
+              <h2 className="text-white text-3xl md:text-4xl font-extrabold uppercase leading-tight">
                 MINIMALIST <br />
                 ARCHITECTURE.
               </h2>
@@ -164,7 +164,7 @@ export const Home = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-white/5 pb-4 gap-5">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-primary block mb-2">Curated Selection</span>
-            <h2 className="text-2xl md:text-3xl font-extrabold uppercase">Featured Essentials</h2>
+            <h2 className="text-white text-2xl md:text-3xl font-extrabold uppercase">Featured Essentials</h2>
           </div>
 
           {/* Filtering Tabs */}
@@ -206,7 +206,7 @@ export const Home = () => {
           
           <div className="flex flex-col gap-4">
             <span className="text-xs font-bold tracking-[0.3em] text-primary">L'INVITATION PRIVÉE</span>
-            <h2 className="text-2xl sm:text-4xl font-extrabold uppercase leading-tight">
+            <h2 className="text-white text-2xl sm:text-4xl font-extrabold uppercase leading-tight">
               SUBSCRIBE TO <br />
               THE ADVEN JOURNAL.
             </h2>

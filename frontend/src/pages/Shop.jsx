@@ -14,7 +14,23 @@ const CATEGORIES = [
   'Sports Shorts',
 ];
 
-const SIZES = ['S', 'M', 'L', 'XL', '30', '32', '34', '36'];
+const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+const sortSizes = (a, b) => {
+  const indexA = sizeOrder.indexOf(a.toUpperCase());
+  const indexB = sizeOrder.indexOf(b.toUpperCase());
+  if (indexA !== -1 && indexB !== -1) {
+    return indexA - indexB;
+  }
+  if (indexA !== -1) return -1;
+  if (indexB !== -1) return 1;
+  
+  const numA = parseInt(a, 10);
+  const numB = parseInt(b, 10);
+  if (!isNaN(numA) && !isNaN(numB)) {
+    return numA - numB;
+  }
+  return a.localeCompare(b);
+};
 
 export const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -37,6 +53,15 @@ export const Shop = () => {
   const [size, setSize] = useState(activeSize);
   const [sortBy, setSortBy] = useState(activeSortBy);
 
+  // Derived available sizes and displayed products
+  const availableSizes = products.length > 0
+    ? Array.from(new Set(products.flatMap(p => p.sizes.map(s => s.size)))).sort(sortSizes)
+    : ['S', 'M', 'L', 'XL', '30', '32', '34', '36'];
+
+  const displayedProducts = activeSize
+    ? products.filter(p => p.sizes.some(s => s.size === activeSize && s.stock > 0))
+    : products;
+
   // Sync state if URL query parameters change
   useEffect(() => {
     setCategory(activeCategory);
@@ -46,7 +71,7 @@ export const Shop = () => {
     setSortBy(activeSortBy);
   }, [activeCategory, activeSearch, activeMinPrice, activeMaxPrice, activeSize, activeSortBy]);
 
-  // Fetch products whenever active filters update
+  // Fetch products whenever active filters update (excluding activeSize from API parameters)
   useEffect(() => {
     const fetchFilteredProducts = async () => {
       setLoading(true);
@@ -58,7 +83,6 @@ export const Shop = () => {
         if (activeSearch) params.append('search', activeSearch);
         if (activeMinPrice) params.append('minPrice', activeMinPrice);
         if (activeMaxPrice) params.append('maxPrice', activeMaxPrice);
-        if (activeSize) params.append('size', activeSize);
         if (activeSortBy) params.append('sortBy', activeSortBy);
         
         url += params.toString();
@@ -76,7 +100,24 @@ export const Shop = () => {
     };
 
     fetchFilteredProducts();
-  }, [searchParams]);
+  }, [activeCategory, activeSearch, activeMinPrice, activeMaxPrice, activeSortBy]);
+
+  // Auto-clear activeSize filter if it is no longer available in the fetched products
+  useEffect(() => {
+    if (activeSize && products.length > 0 && !loading) {
+      const sizes = Array.from(
+        new Set(
+          products.flatMap(p => p.sizes.map(s => s.size))
+        )
+      );
+      if (!sizes.includes(activeSize)) {
+        const newParams = { ...Object.fromEntries(searchParams.entries()) };
+        delete newParams.size;
+        setSearchParams(newParams);
+        setSize('');
+      }
+    }
+  }, [products, activeSize, loading, searchParams, setSearchParams]);
 
   const handleApplyFilters = () => {
     const newParams = {};
@@ -129,7 +170,7 @@ export const Shop = () => {
             </p>
           )}
           <p className="text-xs text-text-muted mt-0.5">
-            Showing {products.length} products
+            Showing {displayedProducts.length} products
           </p>
         </div>
 
@@ -192,7 +233,7 @@ export const Shop = () => {
           <div className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-text-primary border-b border-white/5 pb-2">Sizes</h3>
             <div className="flex flex-wrap gap-2">
-              {SIZES.map((sz) => (
+              {availableSizes.map((sz) => (
                 <button
                   key={sz}
                   onClick={() => setSize(size === sz ? '' : sz)}
@@ -243,7 +284,7 @@ export const Shop = () => {
             <div className="flex justify-center items-center min-h-[300px]">
               <div className="loader"></div>
             </div>
-          ) : products.length === 0 ? (
+          ) : displayedProducts.length === 0 ? (
             <div className="text-center py-20 px-6 border border-dashed border-border-color rounded-sm max-w-2xl mx-auto flex flex-col items-center gap-3">
               <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">No garments found</h3>
               <p className="text-xs text-text-muted max-w-sm leading-relaxed">
@@ -253,7 +294,7 @@ export const Shop = () => {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}
             </div>
@@ -308,7 +349,7 @@ export const Shop = () => {
               <div className="flex flex-col gap-3">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-text-secondary">Sizes</h4>
                 <div className="flex flex-wrap gap-2">
-                  {SIZES.map((sz) => (
+                  {availableSizes.map((sz) => (
                     <button
                       key={sz}
                       onClick={() => setSize(size === sz ? '' : sz)}
