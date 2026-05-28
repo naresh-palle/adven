@@ -55,7 +55,7 @@ export const Home = () => {
     <div className="flex flex-col gap-20 md:gap-32 overflow-x-hidden animate-fade-in">
       
       {/* 1. HERO SECTION (Zara Layout + Nike Boldness) */}
-      <section className="relative h-[calc(100vh-80px)] min-h-[600px] w-full flex items-center bg-gradient-to-b from-black/40 to-black/90 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&auto=format&fit=crop&q=80')] bg-cover bg-[center_30%] overflow-hidden">
+      <section className="relative h-[calc(100vh-80px)] min-h-[600px] w-full flex items-center bg-gradient-to-b from-black/40 to-black/90 bg-[url('https://images.unsplash.com/photo-1488161628813-04466f872be2?w=1600&auto=format&fit=crop&q=80')] bg-cover bg-[center_30%] overflow-hidden">
         {/* Decorative Grid Lines (Zara style) */}
         <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-15 z-0">
           <div className="border-r border-white/40 h-full"></div>
@@ -110,7 +110,7 @@ export const Home = () => {
           <div className="lg:col-span-7 relative">
             <div className="relative rounded-sm overflow-hidden h-[400px] sm:h-[550px] md:h-[620px] border border-white/5 group">
               <img 
-                src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop&q=80" 
+                src="https://images.unsplash.com/photo-1536766820879-059fcd98e0a0?w=800&auto=format&fit=crop&q=80" 
                 alt="Zara Style Menswear" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               />
@@ -138,7 +138,7 @@ export const Home = () => {
               </h2>
               <div className="w-14 h-[2px] bg-primary"></div>
               <p className="text-text-secondary text-sm md:text-base leading-relaxed font-light mt-2">
-                Inspired by the clean silhouettes of Zara lookbooks and the technical execution of Nike sportswear, Adven brings a new vocabulary to menswear. Unstructured blazers, utility cargos, and fluid t-shirts.
+                Inspired by the clean silhouettes of Zara lookbooks and the technical execution of Nike sportswear, Adven brings a new vocabulary to menswear. Minimalist jackets, utility cargos, and fluid t-shirts.
               </p>
               <Link to="/shop" className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold text-primary tracking-wider hover:underline w-fit mt-2">
                 VIEW THE ESSENTIALS <ChevronRight size={16} />
@@ -147,7 +147,7 @@ export const Home = () => {
 
             <div className="relative rounded-sm overflow-hidden h-[200px] sm:h-[280px] border border-white/5 group">
               <img 
-                src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80" 
+                src="https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=800&auto=format&fit=crop&q=80" 
                 alt="Technical Wear Detail" 
                 className="w-full h-full object-cover transition-transform duration-750 group-hover:scale-103"
               />

@@ -81,11 +81,11 @@ export const AuthModal = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/85 flex items-center justify-center z-[1000] p-4 animate-fade-in"
+      className="fixed inset-0 bg-black/85 z-[1000] overflow-y-auto p-4 flex justify-center items-start sm:items-center animate-fade-in"
       onClick={onClose}
     >
       <div 
-        className="glass w-full max-w-[440px] rounded-md p-8 md:p-10 relative border border-white/5 shadow-2xl"
+        className="glass w-full max-w-[440px] rounded-md p-8 md:p-10 relative border border-white/5 shadow-2xl my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -111,6 +111,12 @@ export const AuthModal = ({ isOpen, onClose }) => {
               <h3 className="text-base uppercase tracking-wider font-semibold text-text-primary mb-1">Sign in with Google</h3>
               <p className="text-xs text-text-secondary">Choose a Google account to continue to Adven</p>
             </div>
+
+            {errorMsg && (
+              <div className="bg-danger/10 border border-danger/20 text-danger py-2.5 px-4 rounded-sm text-xs text-center">
+                {errorMsg}
+              </div>
+            )}
 
             {/* List of mock Google accounts */}
             <div className="flex flex-col gap-2.5">
@@ -224,7 +230,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                       type="text" 
                       id="name-input"
                       placeholder="Enter your name" 
-                      className="form-control w-full pl-11 focus:!border-primary" 
+                      className="form-control w-full !pl-11 focus:!border-primary" 
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
@@ -241,7 +247,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     type="email" 
                     id="email-input"
                     placeholder="you@example.com" 
-                    className="form-control w-full pl-11 focus:!border-primary" 
+                    className="form-control w-full !pl-11 focus:!border-primary" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -257,7 +263,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     type="password" 
                     id="password-input"
                     placeholder="••••••••" 
-                    className="form-control w-full pl-11 focus:!border-primary" 
+                    className="form-control w-full !pl-11 focus:!border-primary" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
