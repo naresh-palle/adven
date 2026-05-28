@@ -102,54 +102,7 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* 2. ZARA-INSPIRED ASYMMETRIC LOOKBOOK (Editorial Split) */}
-      <section id="lookbook-section" className="container mx-auto px-4 md:px-6 scroll-mt-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          
-          {/* Big Asymmetric Image Left */}
-          <div className="lg:col-span-7 relative">
-            <div className="relative rounded-sm overflow-hidden h-[400px] sm:h-[550px] md:h-[620px] border border-white/5 group">
-              <img 
-                src="https://images.unsplash.com/photo-1536766820879-059fcd98e0a0?w=800&auto=format&fit=crop&q=80" 
-                alt="Lookbook Image" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-              />
-              <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 z-10 max-w-[90%] md:max-w-[380px] flex flex-col gap-3">
-                
-                
-                <p className="text-xs md:text-sm text-text-secondary leading-relaxed font-light">
-                  A study in structure and geometry. Organic linen and pima cotton, woven to move without friction.
-                </p>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none"></div>
-            </div>
-          </div>
 
-          {/* Staggered Right Side Text & Secondary Image */}
-          <div className="lg:col-span-5 flex flex-col gap-8 lg:pl-6">
-            
-            <div className="flex flex-col gap-4">
-              <div className="w-14 h-[2px] bg-primary"></div>
-              <p className="text-text-secondary text-sm md:text-base leading-relaxed font-light mt-2">
-                Inspired by the clean silhouettes of Zara lookbooks and the technical execution of Nike sportswear, Adven brings a new vocabulary to menswear. Minimalist jackets, utility cargos, and fluid t-shirts.
-              </p>
-              <Link to="/shop" className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold text-primary tracking-wider hover:underline w-fit mt-2">
-                VIEW THE ESSENTIALS <ChevronRight size={16} />
-              </Link>
-            </div>
-
-            <div className="relative rounded-sm overflow-hidden h-[200px] sm:h-[280px] border border-white/5 group">
-              <img 
-                src="https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=800&auto=format&fit=crop&q=80" 
-                alt="Technical Wear Detail" 
-                className="w-full h-full object-cover transition-transform duration-750 group-hover:scale-103"
-              />
-            </div>
-
-          </div>
-
-        </div>
-      </section>
 
 
       {/* 5. EDITORIAL PRODUCT SHOWCASE (Featured essentials with filter tabs) */}
