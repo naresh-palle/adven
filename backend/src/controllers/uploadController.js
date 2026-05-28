@@ -59,7 +59,7 @@ const streamUploadToCloudinary = (file) => {
 };
 
 // Write buffer to local disk uploads folder
-const saveToLocalDisk = (file) => {
+const saveToLocalDisk = (file, req) => {
   const uploadDir = path.join(__dirname, '../../uploads');
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -70,7 +70,10 @@ const saveToLocalDisk = (file) => {
   const filePath = path.join(uploadDir, fileName);
 
   fs.writeFileSync(filePath, file.buffer);
-  return `/uploads/${fileName}`;
+  const protocol = req.protocol || 'http';
+  const host = (req.get && req.get('host')) || 'localhost:5000';
+  const baseUrl = `${protocol}://${host}`;
+  return `${baseUrl}/uploads/${fileName}`;
 };
 
 // @desc    Upload multiple product images
@@ -91,9 +94,10 @@ const uploadImages = async (req, res) => {
       if (useCloudinary) {
         return await streamUploadToCloudinary(file);
       } else {
-        return saveToLocalDisk(file);
+        return saveToLocalDisk(file, req);
       }
     });
+
 
     const urls = await Promise.all(uploadPromises);
     res.status(200).json({ urls });
