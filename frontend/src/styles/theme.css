@@ -1,3 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: hsl(var(--primary));
+  --color-primary-hover: hsl(var(--primary-hover));
+  --color-primary-light: hsl(var(--primary-light));
+  --color-bg-color: hsl(var(--bg-color));
+  --color-card-bg: hsl(var(--card-bg));
+  --color-card-bg-hover: hsl(var(--card-bg-hover));
+  --color-border-color: hsl(var(--border-color));
+  --color-border-light: hsl(var(--border-light));
+  --color-text-primary: hsl(var(--text-primary));
+  --color-text-secondary: hsl(var(--text-secondary));
+  --color-text-muted: hsl(var(--text-muted));
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
 /* Design Tokens & Global Style Variables */
 :root {
   /* HSL Colors */

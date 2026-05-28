@@ -36,275 +36,161 @@ export const Navbar = ({ onOpenAuth }) => {
 
   const isActive = (path) => location.pathname === path;
 
+
   return (
-    <nav className="glass" style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      height: 'var(--navbar-height)',
-      display: 'flex',
-      alignItems: 'center',
-      borderBottom: '1px solid rgba(255,255,255,0.05)',
-      boxShadow: 'var(--shadow-md)',
-      transition: 'background var(--transition-normal)'
-    }}>
-      <div className="container" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%'
-      }}>
-        {/* Left: Mobile Menu Toggle / Brand Link */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <nav className="sticky top-0 z-50 h-20 w-full flex items-center bg-bg-color/80 backdrop-blur-md border-b border-border-color/40 shadow-md transition-all duration-300">
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between w-full">
+        
+        {/* Left: Mobile Toggle & Logo */}
+        <div className="flex items-center gap-4">
           <button 
-            className="btn-text" 
-            style={{ padding: '8px', display: 'none' }} /* Shown in mobile media queries */
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            id="mobile-menu-toggle"
-            aria-label="Toggle mobile menu"
+            className="md:hidden text-text-secondary hover:text-primary transition-colors p-2"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Open mobile menu"
           >
             <Menu size={24} />
           </button>
           
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '2rem',
-              fontWeight: 800,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase'
-            }} className="gold-text">ADVEN</span>
+          <Link to="/" className="flex items-center gap-2">
+            <span className="font-display text-2xl md:text-3xl font-extrabold tracking-widest uppercase gold-text">ADVEN</span>
           </Link>
         </div>
 
-        {/* Center: Desktop Navigation Links */}
-        <div className="desktop-links" style={{ display: 'flex', gap: '32px' }}>
-          <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`}>Home</Link>
-          <Link to="/shop" className={`nav-link ${isActive('/shop') ? 'active' : ''}`}>Shop</Link>
+        {/* Center: Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8">
+          <Link to="/" className={`text-sm font-medium uppercase tracking-wider transition-colors ${isActive('/') ? 'text-primary border-b border-primary pb-1' : 'text-text-secondary hover:text-text-primary'}`}>Home</Link>
+          <Link to="/shop" className={`text-sm font-medium uppercase tracking-wider transition-colors ${isActive('/shop') ? 'text-primary border-b border-primary pb-1' : 'text-text-secondary hover:text-text-primary'}`}>Shop</Link>
           {user && (
-            <Link to="/wishlist" className={`nav-link ${isActive('/wishlist') ? 'active' : ''}`}>Wishlist</Link>
+            <Link to="/wishlist" className={`text-sm font-medium uppercase tracking-wider transition-colors ${isActive('/wishlist') ? 'text-primary border-b border-primary pb-1' : 'text-text-secondary hover:text-text-primary'}`}>Wishlist</Link>
           )}
           {isAdmin && (
-            <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`} style={{ color: 'hsl(var(--primary))', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Link to="/admin" className={`text-sm font-medium uppercase tracking-wider transition-colors flex items-center gap-1.5 ${isActive('/admin') ? 'text-primary border-b border-primary pb-1' : 'text-primary/80 hover:text-primary'}`}>
               <Shield size={14} /> Admin
             </Link>
           )}
         </div>
 
-        {/* Right: Actions (Search, Wishlist, Cart, Profile) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 md:gap-4">
           {/* Search Toggle */}
-          <button className="btn-text" onClick={() => setSearchOpen(!searchOpen)} aria-label="Search">
+          <button className="text-text-secondary hover:text-primary transition-colors p-2" onClick={() => setSearchOpen(!searchOpen)} aria-label="Search">
             <Search size={20} />
           </button>
 
-          {/* Wishlist Link */}
-          <Link to="/wishlist" className="btn-text" style={{ position: 'relative' }} aria-label="Wishlist">
+          {/* Wishlist Icon */}
+          <Link to="/wishlist" className="text-text-secondary hover:text-primary transition-colors relative p-2" aria-label="Wishlist">
             <Heart size={20} />
             {wishlist.length > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-6px',
-                right: '-8px',
-                background: 'hsl(var(--primary))',
-                color: '#000',
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                width: '16px',
-                height: '16px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>{wishlist.length}</span>
+              <span className="absolute top-0 right-0 bg-primary text-black font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{wishlist.length}</span>
             )}
           </Link>
 
-          {/* Cart Link */}
-          <Link to="/cart" className="btn-text" style={{ position: 'relative' }} aria-label="Cart">
+          {/* Cart Icon */}
+          <Link to="/cart" className="text-text-secondary hover:text-primary transition-colors relative p-2" aria-label="Cart">
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-6px',
-                right: '-8px',
-                background: 'hsl(var(--primary))',
-                color: '#000',
-                fontSize: '0.65rem',
-                fontWeight: 700,
-                width: '16px',
-                height: '16px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>{cartCount}</span>
+              <span className="absolute top-0 right-0 bg-primary text-black font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>
             )}
           </Link>
 
-          {/* User Profile / Auth Action */}
+          {/* Profile Dropdown */}
           {user ? (
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <button 
-                className="btn-text" 
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)} 
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                aria-label="User profile options"
+                className="text-text-secondary hover:text-primary transition-colors flex items-center gap-2 p-2" 
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                aria-label="Profile dropdown"
               >
                 <User size={20} />
-                <span className="desktop-username" style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>{user.name.split(' ')[0]}</span>
+                <span className="hidden lg:inline text-sm text-text-secondary">{user.name.split(' ')[0]}</span>
               </button>
               
               {userDropdownOpen && (
-                <div className="glass" style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '40px',
-                  width: '180px',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '8px 0',
-                  boxShadow: 'var(--shadow-lg)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  border: '1px solid rgba(255,255,255,0.08)'
-                }}>
+                <div className="absolute right-0 mt-2 w-48 bg-card-bg border border-border-color/80 rounded-md py-2 shadow-xl z-50 flex flex-col">
                   {isAdmin && (
-                    <Link to="/admin" onClick={() => setUserDropdownOpen(false)} style={{
-                      padding: '10px 16px',
-                      fontSize: '0.85rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      color: 'hsl(var(--primary))'
-                    }}>
+                    <Link to="/admin" onClick={() => setUserDropdownOpen(false)} className="px-4 py-2 text-sm text-primary flex items-center gap-2 hover:bg-white/5 transition-colors">
                       <Shield size={16} /> Admin Portal
                     </Link>
                   )}
-                  <button onClick={handleLogoutClick} style={{
-                    padding: '10px 16px',
-                    fontSize: '0.85rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: 'hsl(var(--danger))',
-                    width: '100%',
-                    textAlign: 'left'
-                  }}>
+                  <button onClick={handleLogoutClick} className="px-4 py-2 text-sm text-danger flex items-center gap-2 hover:bg-white/5 transition-colors w-full text-left">
                     <LogOut size={16} /> Log Out
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <button className="btn btn-secondary" onClick={onOpenAuth} style={{ padding: '8px 16px', fontSize: '0.75rem' }}>
+            <button className="btn btn-secondary !py-2 !px-4 !text-xs" onClick={onOpenAuth}>
               Login
             </button>
           )}
         </div>
+
       </div>
 
-      {/* Global Slide-down Search Bar Overlay */}
+      {/* Slide-down Search Input */}
       {searchOpen && (
-        <div className="glass" style={{
-          position: 'absolute',
-          top: 'var(--navbar-height)',
-          left: 0,
-          right: 0,
-          padding: '16px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          animation: 'fadeIn 0.2s ease-out'
-        }}>
-          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '12px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="absolute top-20 left-0 w-full bg-card-bg border-b border-border-color p-4 shadow-lg animate-fade-in z-50">
+          <form onSubmit={handleSearchSubmit} className="flex gap-3 max-w-4xl mx-auto items-center">
             <input 
               type="text" 
-              placeholder="Search premium men's clothing (e.g. linen shirt, cargos)..." 
-              className="form-control"
-              style={{ flex: 1 }}
+              placeholder="Search premium apparel (e.g., silk shirt, trousers)..." 
+              className="form-control flex-1 !bg-white/5 !border-border-color/60 focus:!border-primary"
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
               autoFocus
             />
-            <button type="submit" className="btn btn-primary" style={{ padding: '12px 24px' }}>Search</button>
-            <button type="button" className="btn btn-secondary" onClick={() => setSearchOpen(false)} style={{ padding: '12px' }}>
+            <button type="submit" className="btn btn-primary !py-2.5 !px-6">Search</button>
+            <button type="button" className="btn btn-secondary !p-2.5" onClick={() => setSearchOpen(false)}>
               <X size={20} />
             </button>
           </form>
         </div>
       )}
 
-      {/* Mobile Slide-out Menu Drawer */}
+      {/* Mobile Drawer (Responsive Overlay) */}
       {mobileMenuOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          zIndex: 999
-        }} onClick={() => setMobileMenuOpen(false)}>
-          <div className="glass" style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '280px',
-            bottom: 0,
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-            boxShadow: 'var(--shadow-lg)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span className="gold-text" style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '0.1em' }}>ADVEN</span>
-              <button className="btn-text" onClick={() => setMobileMenuOpen(false)}>
+        <div className="fixed inset-0 bg-black/80 z-50 transition-opacity duration-300 flex" onClick={() => setMobileMenuOpen(false)}>
+          <div className="w-72 bg-bg-color border-r border-border-color/50 h-full p-6 flex flex-col gap-6 shadow-2xl relative animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            
+            <div className="flex justify-between items-center">
+              <span className="font-display text-2xl font-extrabold tracking-widest uppercase gold-text">ADVEN</span>
+              <button className="text-text-secondary hover:text-primary transition-colors p-2" onClick={() => setMobileMenuOpen(false)}>
                 <X size={24} />
               </button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`nav-link ${isActive('/') ? 'active' : ''}`}>Home</Link>
-              <Link to="/shop" onClick={() => setMobileMenuOpen(false)} className={`nav-link ${isActive('/shop') ? 'active' : ''}`}>Shop</Link>
+            <div className="flex flex-col gap-5 mt-6">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className={`text-base font-medium tracking-wider uppercase ${isActive('/') ? 'text-primary' : 'text-text-secondary'}`}>Home</Link>
+              <Link to="/shop" onClick={() => setMobileMenuOpen(false)} className={`text-base font-medium tracking-wider uppercase ${isActive('/shop') ? 'text-primary' : 'text-text-secondary'}`}>Shop</Link>
               {user && (
-                <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className={`nav-link ${isActive('/wishlist') ? 'active' : ''}`}>Wishlist</Link>
+                <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className={`text-base font-medium tracking-wider uppercase ${isActive('/wishlist') ? 'text-primary' : 'text-text-secondary'}`}>Wishlist</Link>
               )}
               {isAdmin && (
-                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className={`nav-link ${isActive('/admin') ? 'active' : ''}`} style={{ color: 'hsl(var(--primary))' }}>Admin Portal</Link>
+                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-base font-medium tracking-wider uppercase text-primary flex items-center gap-2">
+                  <Shield size={16} /> Admin Panel
+                </Link>
               )}
             </div>
 
-            <div style={{ marginTop: 'auto' }}>
+            <div className="mt-auto pt-6 border-t border-border-color/40">
               {user ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ fontSize: '0.9rem', color: 'hsl(var(--text-secondary))' }}>Logged in as: <strong>{user.name}</strong></div>
-                  <button className="btn btn-secondary" onClick={handleLogoutClick} style={{ width: '100%' }}>
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm text-text-secondary">Signed in as: <strong className="text-text-primary">{user.name}</strong></span>
+                  <button className="btn btn-secondary w-full" onClick={handleLogoutClick}>
                     <LogOut size={16} /> Log Out
                   </button>
                 </div>
               ) : (
-                <button className="btn btn-primary" onClick={() => { setMobileMenuOpen(false); onOpenAuth(); }} style={{ width: '100%' }}>
+                <button className="btn btn-primary w-full" onClick={() => { setMobileMenuOpen(false); onOpenAuth(); }}>
                   Login / Register
                 </button>
               )}
             </div>
+
           </div>
         </div>
       )}
 
-      {/* CSS overrides inside component to manage responsive states easily */}
-      <style>{`
-        @media (max-width: 768px) {
-          .desktop-links {
-            display: none !important;
-          }
-          #mobile-menu-toggle {
-            display: block !important;
-          }
-          .desktop-username {
-            display: none !important;
-          }
-        }
-      `}</style>
     </nav>
   );
 };

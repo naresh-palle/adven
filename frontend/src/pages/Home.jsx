@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
-import { ArrowRight, ChevronRight, Play, Eye, ShoppingBag } from 'lucide-react';
+import { ArrowRight, ChevronRight, Play, ShoppingBag } from 'lucide-react';
 
 const CATEGORIES_LIST = [
   { name: 'T-Shirts', category: 'Classics', img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80' },
@@ -63,79 +63,39 @@ export const Home = () => {
   };
 
   return (
-    <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '120px', overflowX: 'hidden' }}>
+    <div className="flex flex-col gap-20 md:gap-32 overflow-x-hidden animate-fade-in">
       
       {/* 1. HERO SECTION (Zara Layout + Nike Boldness) */}
-      <section style={{
-        position: 'relative',
-        height: 'calc(100vh - var(--navbar-height))',
-        minHeight: '650px',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        background: 'linear-gradient(rgba(10,10,12,0.4) 0%, rgba(10,10,12,0.9) 100%), url("https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&auto=format&fit=crop&q=80")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 30%',
-        overflow: 'hidden'
-      }}>
+      <section className="relative h-[calc(100vh-80px)] min-h-[600px] w-full flex items-center bg-gradient-to-b from-black/40 to-black/90 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&auto=format&fit=crop&q=80')] bg-cover bg-[center_30%] overflow-hidden">
         {/* Decorative Grid Lines (Zara style) */}
-        <div className="zara-lines-overlay" style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          pointerEvents: 'none',
-          opacity: 0.15
-        }}>
-          <div style={{ borderRight: '1px solid #fff' }}></div>
-          <div style={{ borderRight: '1px solid #fff' }}></div>
-          <div style={{ borderRight: '1px solid #fff' }}></div>
-          <div></div>
+        <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-15 z-0">
+          <div className="border-r border-white/40 h-full"></div>
+          <div className="border-r border-white/40 h-full"></div>
+          <div className="border-r border-white/40 h-full"></div>
+          <div className="h-full"></div>
         </div>
 
-        <div className="container" style={{ width: '100%', position: 'relative', zIndex: 5 }}>
-          <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="container mx-auto px-4 md:px-6 relative z-10 w-full">
+          <div className="max-w-[800px] flex flex-col gap-6 md:gap-8">
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }} className="hero-badge-anim">
-              <span style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.3em',
-                color: 'hsl(var(--primary))'
-              }}>ADVEN / ATELIER EDITION</span>
-              <div style={{ width: '40px', height: '1px', background: 'hsl(var(--primary))' }}></div>
+            <div className="flex items-center gap-4 animate-fade-in duration-700">
+              <span className="font-display text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-primary">
+                ADVEN / ATELIER EDITION
+              </span>
+              <div className="w-10 h-[1px] bg-primary"></div>
             </div>
 
-            <h1 className="hero-title" style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(3rem, 7vw, 6.5rem)',
-              fontWeight: 800,
-              lineHeight: 0.95,
-              letterSpacing: '-0.04em',
-              textTransform: 'uppercase'
-            }}>
+            <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-black leading-[0.95] tracking-tighter uppercase animate-fade-in duration-1000">
               SARTORIAL <br />
               <span className="gold-text">ESCAPE.</span>
             </h1>
 
-            <p style={{
-              fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
-              color: 'hsl(var(--text-secondary))',
-              lineHeight: '1.7',
-              maxWidth: '600px',
-              fontFamily: 'var(--font-body)',
-              fontWeight: 300
-            }}>
+            <p className="text-sm sm:text-base md:text-xl text-text-secondary leading-relaxed max-w-[600px] font-body font-light">
               Discover technical fabrics fused with Zara-inspired high tailoring. Engineered for movement, crafted in pure luxury.
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginTop: '20px' }}>
-              <Link to="/shop" className="btn btn-primary" style={{ padding: '18px 40px', fontSize: '0.85rem' }}>
+            <div className="flex flex-wrap gap-4 mt-4">
+              <Link to="/shop" className="btn btn-primary !py-4 !px-8 text-xs sm:text-sm">
                 EXPLORE COLLECTION <ArrowRight size={16} />
               </Link>
               <button 
@@ -143,8 +103,7 @@ export const Home = () => {
                   const element = document.getElementById('lookbook-section');
                   element?.scrollIntoView({ behavior: 'smooth' });
                 }} 
-                className="btn btn-secondary" 
-                style={{ padding: '18px 32px', fontSize: '0.85rem' }}
+                className="btn btn-secondary !py-4 !px-6 text-xs sm:text-sm"
               >
                 VIEW LOOKBOOK <Play size={14} />
               </button>
@@ -155,90 +114,53 @@ export const Home = () => {
       </section>
 
       {/* 2. ZARA-INSPIRED ASYMMETRIC LOOKBOOK (Editorial Split) */}
-      <section id="lookbook-section" className="container" style={{ scrollMarginTop: '100px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '40px', alignItems: 'center' }} className="lookbook-grid">
+      <section id="lookbook-section" className="container mx-auto px-4 md:px-6 scroll-mt-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Big Asymmetric Image Left */}
-          <div style={{ gridColumn: 'span 7', position: 'relative' }} className="lookbook-main-col">
-            <div style={{
-              position: 'relative',
-              borderRadius: 'var(--radius-sm)',
-              overflow: 'hidden',
-              height: '620px',
-              border: '1px solid rgba(255,255,255,0.05)'
-            }} className="scale-img-container">
+          <div className="lg:col-span-7 relative">
+            <div className="relative rounded-sm overflow-hidden h-[400px] sm:h-[550px] md:h-[620px] border border-white/5 group">
               <img 
                 src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop&q=80" 
                 alt="Zara Style Menswear" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               />
-              <div style={{
-                position: 'absolute',
-                bottom: '32px',
-                left: '32px',
-                zIndex: 2,
-                maxWidth: '380px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px'
-              }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.2em', color: 'hsl(var(--primary))' }}>CHAPTER I</span>
-                <h3 style={{ fontSize: '1.8rem', textTransform: 'uppercase', lineHeight: 1.1 }}>THE TAILORED FORM</h3>
-                <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>
+              <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 z-10 max-w-[90%] md:max-w-[380px] flex flex-col gap-3">
+                <span className="text-xs font-semibold tracking-[0.2em] text-primary">CHAPTER I</span>
+                <h3 className="text-xl md:text-2xl font-bold uppercase leading-tight text-white">THE TAILORED FORM</h3>
+                <p className="text-xs md:text-sm text-text-secondary leading-relaxed font-light">
                   A study in structure and geometry. Organic linen and pima cotton, woven to move without friction.
                 </p>
               </div>
-              <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.1) 60%)',
-                pointerEvents: 'none'
-              }}></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none"></div>
             </div>
           </div>
 
           {/* Staggered Right Side Text & Secondary Image */}
-          <div style={{ gridColumn: 'span 5', display: 'flex', flexDirection: 'column', gap: '48px', paddingLeft: '20px' }} className="lookbook-side-col">
+          <div className="lg:col-span-5 flex flex-col gap-8 lg:pl-6">
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'hsl(var(--primary))', textTransform: 'uppercase', letterSpacing: '0.25em' }}>
+            <div className="flex flex-col gap-4">
+              <span className="text-xs font-semibold text-primary uppercase tracking-[0.25em]">
                 EDITORIAL / COLLECTION '26
               </span>
-              <h2 style={{ fontSize: '2.5rem', textTransform: 'uppercase', lineHeight: 1.05 }}>
+              <h2 className="text-3xl md:text-4xl font-extrabold uppercase leading-tight">
                 MINIMALIST <br />
                 ARCHITECTURE.
               </h2>
-              <div style={{ width: '60px', height: '2px', backgroundColor: 'hsl(var(--primary))' }}></div>
-              <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '1rem', lineHeight: 1.7, fontWeight: 300 }}>
+              <div className="w-14 h-[2px] bg-primary"></div>
+              <p className="text-text-secondary text-sm md:text-base leading-relaxed font-light mt-2">
                 Inspired by the clean silhouettes of Zara lookbooks and the technical execution of Nike sportswear, Adven brings a new vocabulary to menswear. Unstructured blazers, utility cargos, and fluid t-shirts.
               </p>
-              <Link to="/shop" style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'hsl(var(--primary))',
-                letterSpacing: '0.1em'
-              }} className="hover-underline">
+              <Link to="/shop" className="inline-flex items-center gap-2 text-xs md:text-sm font-semibold text-primary tracking-wider hover:underline w-fit mt-2">
                 VIEW THE ESSENTIALS <ChevronRight size={16} />
               </Link>
             </div>
 
-            <div style={{
-              position: 'relative',
-              borderRadius: 'var(--radius-sm)',
-              overflow: 'hidden',
-              height: '280px',
-              border: '1px solid rgba(255,255,255,0.05)'
-            }} className="scale-img-container">
+            <div className="relative rounded-sm overflow-hidden h-[200px] sm:h-[280px] border border-white/5 group">
               <img 
                 src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80" 
                 alt="Technical Wear Detail" 
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
+                className="w-full h-full object-cover transition-transform duration-750 group-hover:scale-103"
               />
             </div>
 
@@ -248,122 +170,64 @@ export const Home = () => {
       </section>
 
       {/* 3. DEPARTMENT SLIDER (Classics / Utility / Activewear) */}
-      <section className="container">
-        <div style={{ textAlign: 'center', marginBottom: '64px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'hsl(var(--primary))' }}>Department Divisions</span>
-          <h2 style={{ fontSize: '2.5rem', textTransform: 'uppercase' }}>Shop by Division</h2>
-          <div style={{ width: '40px', height: '2px', backgroundColor: 'hsl(var(--primary))', margin: '0 auto' }}></div>
+      <section className="container mx-auto px-4 md:px-6">
+        <div className="text-center mb-12 md:mb-16 flex flex-col gap-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Department Divisions</span>
+          <h2 className="text-2xl md:text-4xl font-extrabold uppercase">Shop by Division</h2>
+          <div className="w-10 h-[2px] bg-primary mx-auto"></div>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '30px'
-        }} className="department-grid">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           {/* Classics Department */}
-          <div className="dept-card" style={{
-            position: 'relative',
-            height: '480px',
-            borderRadius: 'var(--radius-sm)',
-            overflow: 'hidden',
-            border: '1px solid rgba(255,255,255,0.05)'
-          }}>
+          <div className="relative h-[400px] sm:h-[480px] rounded-sm overflow-hidden border border-white/5 group">
             <img 
               src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&auto=format&fit=crop&q=80" 
               alt="Classics Department" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
             />
-            <div className="dept-overlay" style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.1) 70%)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '40px',
-              gap: '12px'
-            }}>
-              <h3 style={{ fontSize: '1.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CLASSICS</h3>
-              <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))', fontWeight: 300 }}>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-8 gap-3">
+              <h3 className="text-lg md:text-xl font-bold uppercase tracking-wide text-white">CLASSICS</h3>
+              <p className="text-xs text-text-secondary font-light">
                 Tailored shirts, raw selvedge indigo denims, and organic linen shirts.
               </p>
-              <Link to="/shop?category=Shirts" className="btn btn-secondary" style={{ padding: '10px 20px', width: 'fit-content', fontSize: '0.75rem', marginTop: '8px' }}>
+              <Link to="/shop?category=Shirts" className="btn btn-secondary !py-2 !px-4 !text-xs w-fit mt-1.5">
                 EXPLORE CLASSICS
               </Link>
             </div>
           </div>
 
           {/* Utility Department */}
-          <div className="dept-card" style={{
-            position: 'relative',
-            height: '480px',
-            borderRadius: 'var(--radius-sm)',
-            overflow: 'hidden',
-            border: '1px solid rgba(255,255,255,0.05)'
-          }}>
+          <div className="relative h-[400px] sm:h-[480px] rounded-sm overflow-hidden border border-white/5 group">
             <img 
               src="https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=600&auto=format&fit=crop&q=80" 
               alt="Utility Department" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
             />
-            <div className="dept-overlay" style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.1) 70%)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '40px',
-              gap: '12px'
-            }}>
-              <h3 style={{ fontSize: '1.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>UTILITY</h3>
-              <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))', fontWeight: 300 }}>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-8 gap-3">
+              <h3 className="text-lg md:text-xl font-bold uppercase tracking-wide text-white">UTILITY</h3>
+              <p className="text-xs text-text-secondary font-light">
                 Modern cargo utility pants, heavy-duty twill chino shorts, and functional pockets.
               </p>
-              <Link to="/shop?category=Cargos" className="btn btn-secondary" style={{ padding: '10px 20px', width: 'fit-content', fontSize: '0.75rem', marginTop: '8px' }}>
+              <Link to="/shop?category=Cargos" className="btn btn-secondary !py-2 !px-4 !text-xs w-fit mt-1.5">
                 EXPLORE UTILITY
               </Link>
             </div>
           </div>
 
           {/* Activewear Department (Nike Inspired) */}
-          <div className="dept-card" style={{
-            position: 'relative',
-            height: '480px',
-            borderRadius: 'var(--radius-sm)',
-            overflow: 'hidden',
-            border: '1px solid rgba(255,255,255,0.05)'
-          }}>
+          <div className="relative h-[400px] sm:h-[480px] rounded-sm overflow-hidden border border-white/5 group">
             <img 
               src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=80" 
               alt="Activewear Department" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform var(--transition-slow)' }}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
             />
-            <div className="dept-overlay" style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'linear-gradient(to top, rgba(10,10,12,0.95) 0%, rgba(10,10,12,0.1) 70%)',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              padding: '40px',
-              gap: '12px'
-            }}>
-              <h3 style={{ fontSize: '1.6rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>ACTIVEWEAR</h3>
-              <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))', fontWeight: 300 }}>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent flex flex-col justify-end p-8 gap-3">
+              <h3 className="text-lg md:text-xl font-bold uppercase tracking-wide text-white">ACTIVEWEAR</h3>
+              <p className="text-xs text-text-secondary font-light">
                 Four-way stretch joggers, mesh ventilation running shorts, and active gear.
               </p>
-              <Link to="/shop?category=Sports Trousers" className="btn btn-secondary" style={{ padding: '10px 20px', width: 'fit-content', fontSize: '0.75rem', marginTop: '8px' }}>
+              <Link to="/shop?category=Sports Trousers" className="btn btn-secondary !py-2 !px-4 !text-xs w-fit mt-1.5">
                 EXPLORE ACTIVEWEAR
               </Link>
             </div>
@@ -373,33 +237,22 @@ export const Home = () => {
       </section>
 
       {/* 4. NIKE-STYLE HIGHLIGHT (Active Motion Banner) */}
-      <section style={{
-        position: 'relative',
-        height: '480px',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        background: 'linear-gradient(135deg, rgba(10,10,12,0.95) 30%, rgba(10,10,12,0.4) 100%), url("https://images.unsplash.com/photo-1483721310020-03333e577078?w=1600&auto=format&fit=crop&q=80")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 40%',
-        borderTop: '1px solid rgba(255,255,255,0.05)',
-        borderBottom: '1px solid rgba(255,255,255,0.05)'
-      }}>
-        <div className="container" style={{ width: '100%' }}>
-          <div style={{ maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.3em', color: 'hsl(var(--primary))' }}>NIKE PERFORMANCE X ZARA LUXE</span>
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', textTransform: 'uppercase', fontWeight: 800, lineHeight: 1.05 }}>
+      <section className="relative h-auto py-16 md:py-24 w-full flex items-center bg-gradient-to-r from-black/95 via-black/80 to-black/40 bg-[url('https://images.unsplash.com/photo-1483721310020-03333e577078?w=1600&auto=format&fit=crop&q=80')] bg-cover bg-center border-y border-white/5">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="max-w-[600px] flex flex-col gap-4">
+            <span className="text-xs font-bold tracking-[0.3em] text-primary">NIKE PERFORMANCE X ZARA LUXE</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold uppercase leading-tight text-white">
               ENGINEERED FOR <br />
               HIGH MOTION.
             </h2>
-            <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '0.95rem', lineHeight: 1.6, fontWeight: 300 }}>
+            <p className="text-text-secondary text-sm md:text-base leading-relaxed font-light">
               Discover running shorts with premium silk-touch liners, sweat-wicking lightweight track pants, and organic Peruvian Pima cotton t-shirts that breathe with your body.
             </p>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
-              <Link to="/shop?category=Sports Shorts" className="btn btn-primary" style={{ padding: '12px 28px' }}>
+            <div className="flex flex-wrap gap-4 mt-3">
+              <Link to="/shop?category=Sports Shorts" className="btn btn-primary !py-3 !px-6 text-xs">
                 SHOP ATHLETICS
               </Link>
-              <Link to="/shop" className="btn btn-secondary" style={{ padding: '12px 28px' }}>
+              <Link to="/shop" className="btn btn-secondary !py-3 !px-6 text-xs">
                 THE ESSENTIALS
               </Link>
             </div>
@@ -408,61 +261,39 @@ export const Home = () => {
       </section>
 
       {/* 5. EDITORIAL PRODUCT SHOWCASE (Featured essentials with filter tabs) */}
-      <section className="container">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'flex-end', 
-          marginBottom: '56px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
-          paddingBottom: '24px'
-        }} className="showcase-header">
-          
+      <section className="container mx-auto px-4 md:px-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-white/5 pb-4 gap-5">
           <div>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.2em', color: 'hsl(var(--primary))', display: 'block', marginBottom: '8px' }}>Curated Selection</span>
-            <h2 style={{ fontSize: '2.2rem', textTransform: 'uppercase' }}>Featured Essentials</h2>
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary block mb-2">Curated Selection</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold uppercase">Featured Essentials</h2>
           </div>
 
           {/* Filtering Tabs */}
-          <div style={{ display: 'flex', gap: '24px' }} className="showcase-tabs">
+          <div className="flex gap-6 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none shrink-0">
             {['All', 'Tops', 'Bottoms', 'Active'].map((filter) => (
               <button
                 key={filter}
                 onClick={() => handleFilterChange(filter)}
-                style={{
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: activeFilter === filter ? 'hsl(var(--primary))' : 'hsl(var(--text-muted))',
-                  position: 'relative',
-                  padding: '8px 0',
-                  cursor: 'pointer',
-                  borderBottom: activeFilter === filter ? '2px solid hsl(var(--primary))' : '2px solid transparent',
-                  transition: 'all var(--transition-fast)'
-                }}
+                className={`text-xs font-semibold uppercase tracking-wider pb-2 border-b-2 transition-all cursor-pointer ${
+                  activeFilter === filter ? 'text-primary border-primary' : 'text-text-muted border-transparent hover:text-text-secondary'
+                }`}
               >
                 {filter}
               </button>
             ))}
           </div>
-
         </div>
 
         {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
+          <div className="flex justify-center py-20">
             <div className="loader"></div>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'hsl(var(--text-secondary))' }}>
+          <div className="text-center py-16 text-sm text-text-secondary">
             No products found matching this department.
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '30px'
-          }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
@@ -471,69 +302,33 @@ export const Home = () => {
       </section>
 
       {/* 6. THE ZARA CATEGORY GRID */}
-      <section className="container">
-        <div style={{ textAlign: 'center', marginBottom: '56px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'hsl(var(--primary))' }}>Luxe Taxonomy</span>
-          <h2 style={{ fontSize: '2.2rem', textTransform: 'uppercase' }}>Department Taxonomy</h2>
-          <div style={{ width: '40px', height: '2px', backgroundColor: 'hsl(var(--primary))', margin: '0 auto' }}></div>
+      <section className="container mx-auto px-4 md:px-6">
+        <div className="text-center mb-12 flex flex-col gap-3">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Luxe Taxonomy</span>
+          <h2 className="text-2xl md:text-3xl font-extrabold uppercase">Department Taxonomy</h2>
+          <div className="w-10 h-[2px] bg-primary mx-auto"></div>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-          gap: '24px'
-        }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {CATEGORIES_LIST.map((category) => (
             <Link 
               key={category.name}
               to={`/shop?category=${encodeURIComponent(category.name)}`}
-              style={{
-                position: 'relative',
-                height: '340px',
-                borderRadius: 'var(--radius-sm)',
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'flex-end',
-                padding: '24px',
-                boxShadow: 'var(--shadow-md)',
-                border: '1px solid rgba(255,255,255,0.02)'
-              }}
-              className="category-card"
+              className="relative h-[240px] sm:h-[340px] rounded-sm overflow-hidden flex items-end p-4 md:p-6 border border-white/[0.02] group shadow-lg"
             >
               <img 
                 src={category.img} 
                 alt={category.name} 
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'brightness(0.65)',
-                  transition: 'transform var(--transition-slow)'
-                }}
+                className="absolute inset-0 w-full h-full object-cover brightness-[0.6] transition-all duration-700 group-hover:scale-105 group-hover:brightness-[0.4]"
               />
-              <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.2em', color: 'hsl(var(--primary))', textTransform: 'uppercase' }}>
+              <div className="relative z-10 flex flex-col gap-1 w-full">
+                <span className="text-[9px] md:text-xs font-semibold tracking-wider text-primary uppercase">
                   {category.category}
                 </span>
-                <h3 style={{ fontSize: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{category.name}</h3>
+                <h3 className="text-sm md:text-lg font-bold uppercase tracking-wide text-white">{category.name}</h3>
                 
-                <span className="shop-now-label" style={{ 
-                  fontSize: '0.75rem', 
-                  color: 'hsl(var(--primary))', 
-                  textTransform: 'uppercase', 
-                  letterSpacing: '0.15em',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  opacity: 0,
-                  transform: 'translateX(-5px)',
-                  transition: 'all var(--transition-normal)',
-                  marginTop: '4px'
-                }}>
-                  VIEW GROUP <ChevronRight size={12} />
+                <span className="text-[10px] text-primary uppercase tracking-wider flex items-center gap-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 mt-1">
+                  VIEW GROUP <ChevronRight size={10} />
                 </span>
               </div>
             </Link>
@@ -542,61 +337,38 @@ export const Home = () => {
       </section>
 
       {/* 7. THE ADVEN JOURNAL (Zara Minimalist Newsletter Privée) */}
-      <section className="container" style={{ marginBottom: '40px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '64px',
-          padding: '80px 48px',
-          border: '1px solid rgba(255,255,255,0.05)',
-          borderRadius: 'var(--radius-sm)',
-          background: 'rgba(255,255,255,0.01)',
-          alignItems: 'center'
-        }} className="newsletter-grid">
+      <section className="container mx-auto px-4 md:px-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 py-12 px-6 sm:py-16 sm:px-12 border border-white/5 rounded-sm bg-white/[0.01] items-center">
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, letterSpacing: '0.3em', color: 'hsl(var(--primary))' }}>L'INVITATION PRIVÉE</span>
-            <h2 style={{ fontSize: '2.5rem', textTransform: 'uppercase', lineHeight: 1.1 }}>
+          <div className="flex flex-col gap-4">
+            <span className="text-xs font-bold tracking-[0.3em] text-primary">L'INVITATION PRIVÉE</span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold uppercase leading-tight">
               SUBSCRIBE TO <br />
               THE ADVEN JOURNAL.
             </h2>
-            <p style={{ color: 'hsl(var(--text-secondary))', fontSize: '0.95rem', lineHeight: 1.6, fontWeight: 300 }}>
+            <p className="text-text-secondary text-sm leading-relaxed font-light">
               Receive seasonal lookbooks, private pre-sale invites, and exclusive insights on new technical materials. Minimalist. Non-intrusive.
             </p>
           </div>
 
           <div>
             {newsletterSubscribed ? (
-              <div className="badge badge-gold" style={{ padding: '16px 24px', fontSize: '0.85rem', width: '100%', justifyContent: 'center' }}>
+              <div className="badge badge-gold !py-4 w-full justify-center text-center text-xs md:text-sm">
                 Thank you! You are now subscribed to the Adven Journal.
               </div>
             ) : (
-              <form onSubmit={handleNewsletterSubmit} style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px'
-              }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
+              <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-4">
+                <div className="form-group mb-0">
                   <input 
                     type="email" 
                     placeholder="ENTER YOUR EMAIL ADDRESS" 
-                    className="form-control"
-                    style={{ 
-                      width: '100%', 
-                      background: 'transparent', 
-                      border: 'none', 
-                      borderBottom: '1px solid hsl(var(--border-color))',
-                      padding: '16px 0',
-                      borderRadius: 0,
-                      fontSize: '0.9rem',
-                      letterSpacing: '0.1em'
-                    }}
+                    className="w-full bg-transparent border-b border-border-color/80 py-4 text-sm tracking-wider uppercase focus:border-primary text-white outline-none"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '16px' }}>
+                <button type="submit" className="btn btn-primary w-full py-4 text-xs md:text-sm">
                   JOIN CLUB
                 </button>
               </form>
@@ -606,102 +378,6 @@ export const Home = () => {
         </div>
       </section>
 
-      {styleInjection}
     </div>
   );
 };
-
-// Custom styles injection for animations and responsiveness
-const styleInjection = (
-  <style>{`
-    /* Zara & Nike custom styling effects */
-    .scale-img-container {
-      overflow: hidden;
-    }
-    .scale-img-container:hover img {
-      transform: scale(1.05);
-    }
-    
-    .dept-card {
-      transition: all var(--transition-slow);
-    }
-    .dept-card:hover {
-      border-color: rgba(212, 175, 55, 0.25);
-    }
-    .dept-card:hover img {
-      transform: scale(1.04);
-    }
-    
-    .category-card:hover img {
-      transform: scale(1.08);
-      filter: brightness(0.4) !important;
-    }
-    .category-card:hover .shop-now-label {
-      opacity: 1 !important;
-      transform: translateX(0) !important;
-    }
-    .category-card:hover {
-      border-color: rgba(212, 175, 55, 0.25);
-    }
-    
-    .hover-underline {
-      position: relative;
-    }
-    .hover-underline::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background-color: hsl(var(--primary));
-      transition: width var(--transition-normal);
-    }
-    .hover-underline:hover::after {
-      width: 100%;
-    }
-
-    /* Hero entrance animations */
-    .hero-badge-anim {
-      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .hero-title {
-      animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-    }
-
-    /* Responsiveness updates */
-    @media (max-width: 992px) {
-      .lookbook-grid {
-        grid-template-columns: 1fr !important;
-        gap: 30px !important;
-      }
-      .lookbook-main-col, .lookbook-side-col {
-        grid-column: span 12 !important;
-        padding-left: 0 !important;
-      }
-      .department-grid {
-        grid-template-columns: 1fr !important;
-        gap: 24px !important;
-      }
-      .newsletter-grid {
-        grid-template-columns: 1fr !important;
-        gap: 40px !important;
-        padding: 48px 24px !important;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .showcase-header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 20px !important;
-      }
-      .showcase-tabs {
-        width: 100% !important;
-        justify-content: flex-start !important;
-        overflow-x: auto !important;
-        padding-bottom: 8px !important;
-      }
-    }
-  `}</style>
-);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { CreditCard, Truck, Calendar, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import { CreditCard, Truck, ArrowLeft, Loader2 } from 'lucide-react';
 
 export const Checkout = () => {
   const { cartItems, totalPrice, subtotal, discountAmount, taxPrice, shippingPrice, coupon, clearCart } = useCart();
@@ -39,7 +39,6 @@ export const Checkout = () => {
     }, 1500);
 
     setTimeout(async () => {
-      // Create order via backend API
       try {
         const orderData = {
           orderItems: cartItems.map((item) => ({
@@ -102,86 +101,72 @@ export const Checkout = () => {
 
   if (cartItems.length === 0 && !paying) {
     return (
-      <div className="container" style={{ textAlign: 'center', padding: '80px 0' }}>
-        <h2>No items in checkout</h2>
-        <Link to="/shop" className="btn btn-secondary" style={{ marginTop: '20px' }}>Return to Shop</Link>
+      <div className="container mx-auto px-4 py-24 text-center">
+        <h2 className="text-xl font-bold uppercase">No items in checkout</h2>
+        <Link to="/shop" className="btn btn-secondary mt-5 inline-block">Return to Shop</Link>
       </div>
     );
   }
 
   return (
-    <div className="container animate-fade-in" style={{ paddingTop: '40px', minHeight: '80vh' }}>
+    <div className="container mx-auto px-4 md:px-6 pt-10 pb-16 min-h-[80vh] animate-fade-in">
       
       {/* Back button */}
-      <Link to="/cart" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'hsl(var(--text-secondary))', marginBottom: '24px' }}>
+      <Link to="/cart" className="inline-flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors mb-6">
         <ArrowLeft size={16} /> Back to Cart
       </Link>
 
-      <h1 style={{ fontSize: '2rem', textTransform: 'uppercase', marginBottom: '40px' }}>Checkout</h1>
+      <h1 className="text-2xl md:text-3xl font-extrabold uppercase tracking-wide mb-10">Checkout</h1>
 
       {errorMsg && (
-        <div style={{
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.2)',
-          color: 'hsl(var(--danger))',
-          padding: '12px',
-          borderRadius: 'var(--radius-sm)',
-          fontSize: '0.85rem',
-          marginBottom: '24px',
-          textAlign: 'center'
-        }}>
+        <div className="bg-danger/10 border border-danger/20 text-danger py-2.5 px-4 rounded-sm text-xs mb-6 text-center max-w-4xl mx-auto">
           {errorMsg}
         </div>
       )}
 
-      <div className="checkout-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 400px',
-        gap: '48px',
-        alignItems: 'flex-start'
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         
         {/* Left Column: Shipping details form */}
-        <div className="glass" style={{ padding: '40px 32px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <h2 style={{ fontSize: '1.2rem', textTransform: 'uppercase', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Truck size={18} style={{ color: 'hsl(var(--primary))' }} /> Shipping Destination
+        <div className="lg:col-span-8 glass p-6 md:p-10 rounded-sm border border-white/5 shadow-lg">
+          <h2 className="text-base font-display font-semibold uppercase tracking-wider text-white mb-6 flex items-center gap-2">
+            <Truck size={18} className="text-primary" /> Shipping Destination
           </h2>
 
-          <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="form-group">
-              <label htmlFor="street-input">Street Address</label>
+          <form onSubmit={handlePlaceOrder} className="flex flex-col gap-5">
+            <div className="form-group mb-0">
+              <label htmlFor="street-input" className="text-xs text-text-secondary uppercase tracking-wider mb-1.5 font-medium block">Street Address</label>
               <input 
                 type="text" 
                 id="street-input"
                 placeholder="Flat / House No. / Street Name" 
-                className="form-control"
+                className="form-control w-full focus:!border-primary !bg-white/5"
                 value={street}
                 onChange={(e) => setStreet(e.target.value)}
                 required
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div className="form-group">
-                <label htmlFor="city-input">City</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="form-group mb-0">
+                <label htmlFor="city-input" className="text-xs text-text-secondary uppercase tracking-wider mb-1.5 font-medium block">City</label>
                 <input 
                   type="text" 
                   id="city-input"
                   placeholder="e.g. Mumbai" 
-                  className="form-control"
+                  className="form-control w-full focus:!border-primary !bg-white/5"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="state-input">State</label>
+              <div className="form-group mb-0">
+                <label htmlFor="state-input" className="text-xs text-text-secondary uppercase tracking-wider mb-1.5 font-medium block">State</label>
                 <input 
                   type="text" 
                   id="state-input"
                   placeholder="e.g. Maharashtra" 
-                  className="form-control"
+                  className="form-control w-full focus:!border-primary !bg-white/5"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   required
@@ -189,27 +174,27 @@ export const Checkout = () => {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div className="form-group">
-                <label htmlFor="pincode-input">PIN Postal Code</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="form-group mb-0">
+                <label htmlFor="pincode-input" className="text-xs text-text-secondary uppercase tracking-wider mb-1.5 font-medium block">PIN Postal Code</label>
                 <input 
                   type="text" 
                   id="pincode-input"
                   placeholder="e.g. 400051" 
-                  className="form-control"
+                  className="form-control w-full focus:!border-primary !bg-white/5"
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="phone-input">Phone Number</label>
+              <div className="form-group mb-0">
+                <label htmlFor="phone-input" className="text-xs text-text-secondary uppercase tracking-wider mb-1.5 font-medium block">Phone Number</label>
                 <input 
                   type="tel" 
                   id="phone-input"
                   placeholder="10-digit mobile" 
-                  className="form-control"
+                  className="form-control w-full focus:!border-primary !bg-white/5"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
@@ -218,69 +203,60 @@ export const Checkout = () => {
             </div>
 
             {/* Payment banner notice */}
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              backgroundColor: 'rgba(255,255,255,0.02)',
-              border: '1px solid hsl(var(--border-color))',
-              padding: '16px',
-              borderRadius: 'var(--radius-sm)',
-              marginTop: '12px',
-              alignItems: 'center'
-            }}>
-              <CreditCard size={20} style={{ color: 'hsl(var(--primary))' }} />
-              <div style={{ fontSize: '0.82rem', color: 'hsl(var(--text-secondary))' }}>
+            <div className="flex gap-3 bg-white/[0.02] border border-border-color p-4 rounded-sm items-center mt-2">
+              <CreditCard size={20} className="text-primary shrink-0" />
+              <div className="text-xs text-text-secondary leading-relaxed">
                 <strong>Secured Sandbox Payment:</strong> Order checkout is completed in secure mock mode. No real cards needed.
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '16px', marginTop: '16px' }}>
+            <button type="submit" className="btn btn-primary w-full py-4 mt-4">
               Authorize Payment & Place Order
             </button>
           </form>
         </div>
 
         {/* Right Column: Order items listing */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          <div className="glass" style={{ padding: '32px 24px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <h3 style={{ fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '24px' }}>Items Summary</h3>
+        <div className="lg:col-span-4 flex flex-col gap-6 w-full">
+          <div className="glass p-5 md:p-6 rounded-sm border border-white/5 shadow-md">
+            <h3 className="text-sm font-display font-semibold uppercase tracking-wider text-text-primary mb-5">Items Summary</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px', maxHeight: '200px', overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="flex flex-col gap-4 mb-5 max-h-[220px] overflow-y-auto pr-2 scrollbar-thin">
               {cartItems.map((item) => (
-                <div key={`${item.product}-${item.size}`} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <img src={item.image} alt="" style={{ width: '40px', height: '50px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'hsl(var(--text-muted))' }}>Size: {item.size} x {item.quantity}</div>
+                <div key={`${item.product}-${item.size}`} className="flex gap-3 items-center">
+                  <img src={item.image} alt="" className="w-10 h-12 object-cover rounded-sm bg-[#0f0f13] shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold text-text-primary truncate">{item.name}</div>
+                    <div className="text-[10px] text-text-muted">Size: {item.size} x {item.quantity}</div>
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>₹{(item.price * item.quantity).toLocaleString('en-IN')}</div>
+                  <div className="text-xs font-bold text-text-primary">₹{(item.price * item.quantity).toLocaleString('en-IN')}</div>
                 </div>
               ))}
             </div>
 
-            <hr style={{ borderColor: 'rgba(255,255,255,0.05)', marginBottom: '20px' }} />
+            <hr className="border-white/5 my-4" />
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>
-              <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between' }}>
+            <div className="flex flex-col gap-3.5 text-xs md:text-sm text-text-secondary">
+              <div className="flex justify-between items-center">
                 <span>Subtotal</span>
-                <span style={{ color: 'hsl(var(--text-primary))' }}>₹{subtotal.toLocaleString('en-IN')}</span>
+                <span className="text-text-primary font-medium">₹{subtotal.toLocaleString('en-IN')}</span>
               </div>
               {discountAmount > 0 && (
-                <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', color: 'hsl(var(--success))' }}>
+                <div className="flex justify-between items-center text-success">
                   <span>Discount</span>
-                  <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+                  <span className="font-medium">-₹{discountAmount.toLocaleString('en-IN')}</span>
                 </div>
               )}
-              <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between' }}>
+              <div className="flex justify-between items-center">
                 <span>GST Tax (18% GST)</span>
-                <span style={{ color: 'hsl(var(--text-primary))' }}>₹{taxPrice.toLocaleString('en-IN')}</span>
+                <span className="text-text-primary font-medium">₹{taxPrice.toLocaleString('en-IN')}</span>
               </div>
-              <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between' }}>
+              <div className="flex justify-between items-center">
                 <span>Shipping Delivery</span>
-                <span style={{ color: 'hsl(var(--text-primary))' }}>{shippingPrice === 0 ? 'FREE' : `₹${shippingPrice}`}</span>
+                <span className="text-text-primary font-medium">{shippingPrice === 0 ? 'FREE' : `₹${shippingPrice}`}</span>
               </div>
-              <hr style={{ borderColor: 'rgba(255,255,255,0.05)', margin: '4px 0' }} />
-              <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 700, color: 'hsl(var(--primary))' }}>
+              <hr className="border-white/5 my-1" />
+              <div className="flex justify-between items-center text-base md:text-lg font-bold text-primary font-display">
                 <span>Grand Total</span>
                 <span>₹{totalPrice.toLocaleString('en-IN')}</span>
               </div>
@@ -292,68 +268,38 @@ export const Checkout = () => {
 
       {/* Simulated Banking Modal Overlay */}
       {paying && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.9)',
-          zIndex: 1001,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div className="glass" style={{
-            width: '100%',
-            maxWidth: '380px',
-            borderRadius: 'var(--radius-md)',
-            padding: '40px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '24px',
-            border: '1px solid rgba(212,175,55,0.2)'
-          }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem', fontWeight: 800, letterSpacing: '0.1em' }} className="gold-text">ADVEN PAY SECURE</span>
+        <div className="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4">
+          <div className="glass w-full max-w-[380px] rounded-md p-8 md:p-10 text-center flex flex-col items-center gap-6 border border-primary/20 shadow-2xl">
+            <span className="font-display text-xl font-extrabold tracking-widest uppercase gold-text">ADVEN PAY SECURE</span>
 
             {paymentStep === 1 && (
               <>
-                <Loader2 size={40} className="spin" style={{ color: 'hsl(var(--primary))', animation: 'spin 1.5s linear infinite' }} />
-                <h3>Validating credentials</h3>
-                <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>Connecting with the simulated sandbox authorization portal...</p>
+                <Loader2 size={36} className="animate-spin text-primary" />
+                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Validating credentials</h3>
+                <p className="text-xs text-text-secondary leading-relaxed">Connecting with the simulated sandbox authorization portal...</p>
               </>
             )}
 
             {paymentStep === 2 && (
               <>
-                <Loader2 size={40} className="spin" style={{ color: 'hsl(var(--primary))', animation: 'spin 1.5s linear infinite' }} />
-                <h3>Processing Transaction</h3>
-                <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>Debiting ₹{totalPrice.toLocaleString('en-IN')} from your demo account and allocating product inventory...</p>
+                <Loader2 size={36} className="animate-spin text-primary" />
+                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Processing Transaction</h3>
+                <p className="text-xs text-text-secondary leading-relaxed">Debiting ₹{totalPrice.toLocaleString('en-IN')} from your demo account and allocating product inventory...</p>
               </>
             )}
 
             {paymentStep === 3 && (
               <>
-                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', border: '2px solid #10b981' }}>
+                <div className="w-12 h-12 rounded-full bg-success/15 border-2 border-success flex items-center justify-center text-success font-bold text-lg">
                   ✓
                 </div>
-                <h3 style={{ color: '#10b981' }}>Payment Successful!</h3>
-                <p style={{ fontSize: '0.85rem', color: 'hsl(var(--text-secondary))' }}>Order Created. Dispatching confirmation email log...</p>
+                <h3 className="text-base font-bold text-success uppercase tracking-wider">Payment Successful!</h3>
+                <p className="text-xs text-text-secondary leading-relaxed">Order Created. Dispatching confirmation email log...</p>
               </>
             )}
           </div>
         </div>
       )}
-
-      <style>{`
-        @media (max-width: 768px) {
-          .checkout-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
