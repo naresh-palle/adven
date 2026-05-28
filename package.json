@@ -1,0 +1,11 @@
+{
+  "name": "adven-fashions",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "cd frontend && npm install",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "preview": "cd frontend && npm run preview"
+  }
+}
