@@ -173,9 +173,11 @@ const runTests = async () => {
       console.log('\n[Test 10] Testing payments order creation & verification...');
       const prodRes10 = await fetch(`${BASE_URL}/api/products`);
       const products10 = await prodRes10.json();
-      const firstProduct = products10[0];
-      const selectedSize = firstProduct.sizes[0].size;
-      const initialStock = firstProduct.sizes[0].stock;
+      const firstProduct = products10.find(p => p.sizes.some(s => s.stock > 0));
+      const availableSizeObj = firstProduct.sizes.find(s => s.stock > 0);
+      const selectedSize = availableSizeObj.size;
+      const initialStock = availableSizeObj.stock;
+
 
       const orderItems = [{
         product: firstProduct._id,
@@ -250,6 +252,96 @@ const runTests = async () => {
         testFailures++;
       }
 
+      // Fetch baseline inventory summary before bulk insertion
+      const summaryBaselineRes = await fetch(`${BASE_URL}/api/inventory/summary`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      let baselineDailyAdded = 0;
+      if (summaryBaselineRes.ok) {
+        const baselineData = await summaryBaselineRes.json();
+        baselineDailyAdded = baselineData.daily.added;
+      }
+
+      // Test Case 11: Direct controller invocation for Cloudinary upload sandbox fallback
+      console.log('\n[Test 11] Testing Upload Controller sandbox fallback directly...');
+      const uploadController = require('../controllers/uploadController');
+      const mockReq = {
+        files: [
+          {
+            originalname: 'test-garment.jpg',
+            buffer: Buffer.from('fake-image-bytes'),
+            mimetype: 'image/jpeg'
+          }
+        ]
+      };
+      let mockResStatus = 200;
+      const mockRes = {
+        status: (code) => {
+          mockResStatus = code;
+          return mockRes;
+        },
+        json: (data) => {
+          if (mockResStatus === 200 && data.urls && data.urls[0].includes('/uploads/')) {
+            console.log('✅ Success! Image uploaded to local sandbox path:', data.urls[0]);
+          } else {
+            console.error('❌ Failed upload controller test, got:', data);
+            testFailures++;
+          }
+        }
+      };
+      await uploadController.uploadImages(mockReq, mockRes);
+
+      // Test Case 12: Direct controller testing for Bulk CSV upload
+      console.log('\n[Test 12] Testing Bulk CSV Ingestion directly...');
+      const productController = require('../controllers/productController');
+      const csvBuffer = Buffer.from(
+        'name,description,price,category,images,sizes_stock,featured\n' +
+        'Atelier Cargo Pant,Technical utility cargo pant in charcoal grey,4999,Cargos,https://images.unsplash.com/photo-1517445312882-bc9910d016b7,S:10;M:15;L:15;XL:10,true\n' +
+        'Atelier Oxford Shirt,Tailored Oxford cotton shirt in white,3499,Shirts,https://images.unsplash.com/photo-1596755094514-f87e34085b2c,S:20;M:25;L:20,false'
+      );
+      const mockCsvReq = {
+        file: {
+          buffer: csvBuffer
+        },
+        user: {
+          name: 'Test Admin'
+        }
+      };
+      const mockCsvRes = {
+        status: (code) => {
+          mockResStatus = code;
+          return mockCsvRes;
+        },
+        json: (data) => {
+          if (mockResStatus === 201 && data.count === 2) {
+            console.log('✅ Success! Imported 2 products in bulk via CSV. Message:', data.message);
+          } else {
+            console.error('❌ CSV Bulk import controller failed, got status:', mockResStatus, data);
+            testFailures++;
+          }
+        }
+      };
+      await productController.bulkUploadProducts(mockCsvReq, mockCsvRes);
+
+      // Test Case 13: Fetching daily/weekly inventory summary
+      console.log('\n[Test 13] Fetching daily & weekly inventory summaries...');
+      const summaryRes = await fetch(`${BASE_URL}/api/inventory/summary`, {
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      if (summaryRes.ok) {
+        const summary = await summaryRes.json();
+        console.log(`✅ Success! Fetched stock summary: Daily Added: ${summary.daily.added}, Weekly Added: ${summary.weekly.added}`);
+        const expectedAdded = baselineDailyAdded + 115;
+        if (summary.daily.added !== expectedAdded) {
+          console.error(`❌ Expected daily added stock to increase by 115 (expected: ${expectedAdded}), got ${summary.daily.added}`);
+          testFailures++;
+        }
+      } else {
+        console.error(`❌ Failed to fetch inventory summary: ${summaryRes.status}`);
+        testFailures++;
+      }
+
+
       // Final Results
       console.log('\n-----------------------------------------');
       if (testFailures === 0) {
@@ -283,3 +375,4 @@ const cleanupAndExit = async (code) => {
 };
 
 runTests();
+

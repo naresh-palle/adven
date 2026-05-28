@@ -248,6 +248,144 @@ const getRelatedProducts = async (req, res) => {
   }
 };
 
+// Custom helper to parse CSV with support for double quotes
+const parseCSV = (csvBuffer) => {
+  const text = csvBuffer.toString('utf-8');
+  const lines = [];
+  let currentLine = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === '\n' && !inQuotes) {
+      lines.push(currentLine.trim());
+      currentLine = '';
+    } else if (char === '\r') {
+      // Skip carriage returns
+    } else {
+      currentLine += char;
+    }
+  }
+  if (currentLine) {
+    lines.push(currentLine.trim());
+  }
+  
+  if (lines.length === 0) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const products = [];
+  
+  for (let l = 1; l < lines.length; l++) {
+    const line = lines[l];
+    if (!line) continue;
+    
+    const values = [];
+    let curVal = '';
+    let valQuotes = false;
+    for (let c = 0; c < line.length; c++) {
+      const char = line[c];
+      if (char === '"') {
+        valQuotes = !valQuotes;
+      } else if (char === ',' && !valQuotes) {
+        values.push(curVal.trim().replace(/^"|"$/g, ''));
+        curVal = '';
+      } else {
+        curVal += char;
+      }
+    }
+    values.push(curVal.trim().replace(/^"|"$/g, ''));
+    
+    const row = {};
+    headers.forEach((header, idx) => {
+      row[header] = values[idx];
+    });
+    products.push(row);
+  }
+  return products;
+};
+
+// @desc    Bulk upload products via CSV
+// @route   POST /api/products/bulk
+// @access  Private/Admin
+const bulkUploadProducts = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please upload a CSV file.' });
+    }
+
+    const csvData = parseCSV(req.file.buffer);
+    const createdProducts = [];
+    const InventoryLog = require('../models/InventoryLog');
+
+    for (const row of csvData) {
+      const { name, description, price, category, images, sizes_stock, featured } = row;
+
+      if (!name || !description || !price || !category || !images) {
+        continue;
+      }
+
+      // Parse images (semicolon-separated)
+      const parsedImages = images.split(';').map(url => url.trim()).filter(Boolean);
+      if (parsedImages.length === 0) continue;
+
+      // Parse sizes_stock (semicolon-separated size:stock pairs)
+      const sizes = [];
+      if (sizes_stock) {
+        const pairs = sizes_stock.split(/[;,]/).map(p => p.trim()).filter(Boolean);
+        for (const pair of pairs) {
+          const [size, stockStr] = pair.split(':').map(s => s.trim());
+          if (size && stockStr !== undefined) {
+            sizes.push({ size, stock: Number(stockStr) || 0 });
+          }
+        }
+      }
+
+      const finalSizes = sizes.length > 0 ? sizes : [
+        { size: 'S', stock: 10 },
+        { size: 'M', stock: 15 },
+        { size: 'L', stock: 15 },
+        { size: 'XL', stock: 10 }
+      ];
+
+      const product = new Product({
+        name,
+        description,
+        price: Number(price) || 0,
+        category,
+        images: parsedImages,
+        sizes: finalSizes,
+        featured: featured === 'true' || featured === '1' || featured === true,
+      });
+
+      const savedProduct = await product.save();
+      createdProducts.push(savedProduct);
+
+      // Log inventory creation
+      for (const sizeObj of savedProduct.sizes) {
+        if (sizeObj.stock > 0) {
+          await InventoryLog.create({
+            product: savedProduct._id,
+            productName: savedProduct.name,
+            size: sizeObj.size,
+            changeType: 'manual-add',
+            quantity: sizeObj.stock,
+            description: 'Bulk CSV product upload initial stock setup',
+            performedBy: req.user ? req.user.name : 'Admin',
+          });
+        }
+      }
+    }
+
+    res.status(201).json({
+      message: `Successfully imported ${createdProducts.length} products.`,
+      count: createdProducts.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message || 'Bulk upload failed' });
+  }
+};
+
 module.exports = {
   getProducts,
   getProductById,
@@ -256,4 +394,6 @@ module.exports = {
   deleteProduct,
   getFeaturedProducts,
   getRelatedProducts,
+  bulkUploadProducts,
 };
+

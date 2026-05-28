@@ -12,6 +12,8 @@ const couponRoutes = require('./routes/couponRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
+
 const { sendContactForm } = require('./utils/email');
 
 const app = express();
@@ -35,6 +37,8 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/upload', uploadRoutes);
+
 
 // Contact form API (Email notification task)
 app.post('/api/contact', async (req, res) => {

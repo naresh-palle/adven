@@ -108,8 +108,62 @@ const updateStock = async (req, res) => {
   }
 };
 
+// @desc    Get daily and weekly stock adjustments summary
+// @route   GET /api/inventory/summary
+// @access  Private/Admin
+const getInventorySummary = async (req, res) => {
+  try {
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const dailyLogs = await InventoryLog.find({ createdAt: { $gte: oneDayAgo } });
+    const weeklyLogs = await InventoryLog.find({ createdAt: { $gte: oneWeekAgo } });
+
+    let dailyAdded = 0;
+    let dailyReduced = 0;
+    dailyLogs.forEach((log) => {
+      const isReduction = log.changeType === 'sale' || log.changeType === 'manual-reduce';
+      if (isReduction) {
+        dailyReduced += log.quantity;
+      } else {
+        dailyAdded += log.quantity;
+      }
+    });
+
+    let weeklyAdded = 0;
+    let weeklyReduced = 0;
+    weeklyLogs.forEach((log) => {
+      const isReduction = log.changeType === 'sale' || log.changeType === 'manual-reduce';
+      if (isReduction) {
+        weeklyReduced += log.quantity;
+      } else {
+        weeklyAdded += log.quantity;
+      }
+    });
+
+    res.json({
+      daily: {
+        added: dailyAdded,
+        reduced: dailyReduced,
+        net: dailyAdded - dailyReduced,
+        count: dailyLogs.length,
+      },
+      weekly: {
+        added: weeklyAdded,
+        reduced: weeklyReduced,
+        net: weeklyAdded - weeklyReduced,
+        count: weeklyLogs.length,
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getInventoryStatus,
   getInventoryLogs,
   updateStock,
+  getInventorySummary,
 };
+
