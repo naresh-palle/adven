@@ -61,7 +61,7 @@ export const Footer = () => {
             <div className="flex flex-col gap-4 text-sm">
               <div className="flex gap-3 items-start">
                 <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-                <span className="leading-relaxed">102, Gold Crest Towers, Bandra Kurla Complex, Mumbai, India - 400051</span>
+                <span className="leading-relaxed">Adven Fashions, Siricilla, Telangana - 505301</span>
               </div>
               <div className="flex gap-3 items-center">
                 <Phone size={18} className="text-primary shrink-0" />
