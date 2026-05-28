@@ -3,17 +3,6 @@ import { Link } from 'react-router-dom';
 import { ProductCard } from '../components/ProductCard';
 import { ArrowRight, ChevronRight, Play, ShoppingBag } from 'lucide-react';
 
-const CATEGORIES_LIST = [
-  { name: 'T-Shirts', category: 'Classics', img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Shirts', category: 'Classics', img: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Trousers', category: 'Classics', img: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Jeans', category: 'Classics', img: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Cotton Shorts', category: 'Utility', img: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Cargos', category: 'Utility', img: 'https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Sports Trousers', category: 'Activewear', img: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&auto=format&fit=crop&q=80' },
-  { name: 'Sports Shorts', category: 'Activewear', img: 'https://images.unsplash.com/photo-1539185441755-769473a23570?w=500&auto=format&fit=crop&q=80' },
-];
-
 export const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -299,41 +288,6 @@ export const Home = () => {
             ))}
           </div>
         )}
-      </section>
-
-      {/* 6. THE ZARA CATEGORY GRID */}
-      <section className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12 flex flex-col gap-3">
-          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">Luxe Taxonomy</span>
-          <h2 className="text-2xl md:text-3xl font-extrabold uppercase">Department Taxonomy</h2>
-          <div className="w-10 h-[2px] bg-primary mx-auto"></div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {CATEGORIES_LIST.map((category) => (
-            <Link 
-              key={category.name}
-              to={`/shop?category=${encodeURIComponent(category.name)}`}
-              className="relative h-[240px] sm:h-[340px] rounded-sm overflow-hidden flex items-end p-4 md:p-6 border border-white/[0.02] group shadow-lg"
-            >
-              <img 
-                src={category.img} 
-                alt={category.name} 
-                className="absolute inset-0 w-full h-full object-cover brightness-[0.6] transition-all duration-700 group-hover:scale-105 group-hover:brightness-[0.4]"
-              />
-              <div className="relative z-10 flex flex-col gap-1 w-full">
-                <span className="text-[9px] md:text-xs font-semibold tracking-wider text-primary uppercase">
-                  {category.category}
-                </span>
-                <h3 className="text-sm md:text-lg font-bold uppercase tracking-wide text-white">{category.name}</h3>
-                
-                <span className="text-[10px] text-primary uppercase tracking-wider flex items-center gap-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 mt-1">
-                  VIEW GROUP <ChevronRight size={10} />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* 7. THE ADVEN JOURNAL (Zara Minimalist Newsletter Privée) */}
