@@ -169,6 +169,87 @@ const runTests = async () => {
         testFailures++;
       }
 
+      // Test Case 10: Payments API Integration (Order creation & Verification)
+      console.log('\n[Test 10] Testing payments order creation & verification...');
+      const prodRes10 = await fetch(`${BASE_URL}/api/products`);
+      const products10 = await prodRes10.json();
+      const firstProduct = products10[0];
+      const selectedSize = firstProduct.sizes[0].size;
+      const initialStock = firstProduct.sizes[0].stock;
+
+      const orderItems = [{
+        product: firstProduct._id,
+        name: firstProduct.name,
+        quantity: 1,
+        size: selectedSize,
+        price: firstProduct.price,
+        image: firstProduct.images[0]
+      }];
+
+      const paymentOrderRes = await fetch(`${BASE_URL}/api/payments/order`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${customerToken}`
+        },
+        body: JSON.stringify({ amount: firstProduct.price, orderItems })
+      });
+
+      if (paymentOrderRes.ok) {
+        const paymentOrder = await paymentOrderRes.json();
+        console.log(`✅ Success! Created secure payment order. ID: ${paymentOrder.id}`);
+
+        const verifyRes = await fetch(`${BASE_URL}/api/payments/verify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${customerToken}`
+          },
+          body: JSON.stringify({
+            razorpay_order_id: paymentOrder.id,
+            razorpay_payment_id: 'pay_mock_test123',
+            razorpay_signature: 'sig_mock',
+            orderData: {
+              orderItems,
+              shippingAddress: {
+                street: 'Test Street 1',
+                city: 'Test City',
+                state: 'Test State',
+                postalCode: '123456',
+                phone: '9876543210',
+                country: 'India'
+              },
+              itemsPrice: firstProduct.price,
+              taxPrice: 0,
+              shippingPrice: 0,
+              discountPrice: 0,
+              totalPrice: firstProduct.price,
+              couponApplied: ''
+            }
+          })
+        });
+
+        if (verifyRes.ok) {
+          const verifiedOrder = await verifyRes.json();
+          console.log(`✅ Success! Verified payment. Order ID: ${verifiedOrder._id}, Paid: ${verifiedOrder.isPaid}`);
+          
+          const updatedProdRes = await fetch(`${BASE_URL}/api/products/${firstProduct._id}`);
+          const updatedProd = await updatedProdRes.json();
+          const updatedSize = updatedProd.sizes.find(s => s.size === selectedSize);
+          console.log(`✅ Success! Verified stock decrease. Initial: ${initialStock}, Updated: ${updatedSize.stock}`);
+          if (updatedSize.stock !== initialStock - 1) {
+            console.error(`❌ Expected stock to be ${initialStock - 1}, got ${updatedSize.stock}`);
+            testFailures++;
+          }
+        } else {
+          console.error(`❌ Failed to verify payment: ${verifyRes.status}`);
+          testFailures++;
+        }
+      } else {
+        console.error(`❌ Failed to create payment order: ${paymentOrderRes.status}`);
+        testFailures++;
+      }
+
       // Final Results
       console.log('\n-----------------------------------------');
       if (testFailures === 0) {

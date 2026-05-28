@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -6,7 +6,7 @@ import { CreditCard, Truck, ArrowLeft, Loader2 } from 'lucide-react';
 
 export const Checkout = () => {
   const { cartItems, totalPrice, subtotal, discountAmount, taxPrice, shippingPrice, coupon, clearCart } = useCart();
-  const { token } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
 
   // Address inputs
@@ -18,9 +18,19 @@ export const Checkout = () => {
   
   // Payment state
   const [paying, setPaying] = useState(false);
-  const [paymentStep, setPaymentStep] = useState(0); // 0: Idle, 1: Validating, 2: Processing, 3: Success
+  const [paymentStep, setPaymentStep] = useState(0); // 0: Idle, 1: Order creation, 2: Verification, 3: Success
   const [errorMsg, setErrorMsg] = useState('');
-  const [createdOrder, setCreatedOrder] = useState(null);
+
+  // Dynamically load Razorpay SDK script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
@@ -31,72 +41,176 @@ export const Checkout = () => {
 
     setErrorMsg('');
     setPaying(true);
-    setPaymentStep(1);
+    setPaymentStep(1); // Creating order
 
-    // Simulate luxury payment flow steps
-    setTimeout(() => {
-      setPaymentStep(2);
-    }, 1500);
+    const orderDetails = {
+      orderItems: cartItems.map((item) => ({
+        product: item.product,
+        name: item.name,
+        quantity: item.quantity,
+        size: item.size,
+        price: item.price,
+        image: item.image,
+      })),
+      shippingAddress: {
+        street,
+        city,
+        state,
+        postalCode,
+        phone,
+        country: 'India',
+      },
+      itemsPrice: subtotal,
+      taxPrice,
+      shippingPrice,
+      discountPrice: discountAmount,
+      totalPrice,
+      couponApplied: coupon ? coupon.code : undefined,
+    };
 
-    setTimeout(async () => {
-      try {
-        const orderData = {
-          orderItems: cartItems.map((item) => ({
-            product: item.product,
-            name: item.name,
-            quantity: item.quantity,
-            size: item.size,
-            price: item.price,
-            image: item.image,
-          })),
-          shippingAddress: {
-            street,
-            city,
-            state,
-            postalCode,
-            phone,
-            country: 'India',
-          },
-          paymentMethod: 'Simulated Secure Card Payment',
-          itemsPrice: subtotal,
-          taxPrice,
-          shippingPrice,
-          discountPrice: discountAmount,
-          totalPrice,
-          couponApplied: coupon ? coupon.code : undefined,
-        };
+    try {
+      // 1. Create Razorpay order ID in backend (this performs dry-run stock check)
+      const orderRes = await fetch('/api/payments/order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: totalPrice,
+          orderItems: orderDetails.orderItems,
+        }),
+      });
 
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(orderData),
-        });
+      const orderData = await orderRes.json();
 
-        const data = await res.json();
-
-        if (res.ok) {
-          setCreatedOrder(data);
-          setPaymentStep(3);
-          clearCart();
-          
-          setTimeout(() => {
-            setPaying(false);
-            navigate(`/order-success?id=${data._id}`);
-          }, 2000);
-        } else {
-          setErrorMsg(data.message || 'Stock allocation or placement failed.');
-          setPaying(false);
-          setPaymentStep(0);
-        }
-      } catch (err) {
-        setErrorMsg('Network error while placing order.');
+      if (!orderRes.ok) {
+        setErrorMsg(orderData.message || 'Inventory allocation or order creation failed.');
         setPaying(false);
         setPaymentStep(0);
+        return;
       }
-    }, 3500);
+
+      // Check if sandbox mock mode
+      if (orderData.id.startsWith('order_mock_')) {
+        console.log('--- ENTERING SANDBOX SIMULATED PAYMENT ---');
+        // Simulate payment verification delay
+        setTimeout(() => {
+          setPaymentStep(2); // Verifying
+        }, 1500);
+
+        setTimeout(async () => {
+          try {
+            const verifyRes = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                razorpay_order_id: orderData.id,
+                razorpay_payment_id: `pay_mock_${Math.random().toString(36).substring(2, 10)}`,
+                razorpay_signature: 'sig_mock',
+                orderData: orderDetails,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (verifyRes.ok) {
+              setPaymentStep(3); // Success
+              clearCart();
+              setTimeout(() => {
+                setPaying(false);
+                navigate(`/order-success?id=${verifyData._id}`);
+              }, 2000);
+            } else {
+              setErrorMsg(verifyData.message || 'Payment verification failed.');
+              setPaying(false);
+              setPaymentStep(0);
+            }
+          } catch (err) {
+            setErrorMsg('Network error verifying payment.');
+            setPaying(false);
+            setPaymentStep(0);
+          }
+        }, 3500);
+
+        return;
+      }
+
+      // 2. Launch actual Razorpay SDK checkout iframe
+      setPaying(false); // Hide spinner while Razorpay UI is active
+      setPaymentStep(0);
+
+      const rzpOptions = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'ADVEN STORE',
+        description: 'Luxury Sartorial Purchase',
+        order_id: orderData.id,
+        handler: async function (response) {
+          // Trigger spinner for verification phase
+          setPaying(true);
+          setPaymentStep(2); // Verifying transaction
+
+          try {
+            const verifyRes = await fetch('/api/payments/verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderData: orderDetails,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (verifyRes.ok) {
+              setPaymentStep(3); // Success
+              clearCart();
+              setTimeout(() => {
+                setPaying(false);
+                navigate(`/order-success?id=${verifyData._id}`);
+              }, 2000);
+            } else {
+              setErrorMsg(verifyData.message || 'Signature verification failed.');
+              setPaying(false);
+              setPaymentStep(0);
+            }
+          } catch (err) {
+            setErrorMsg('Network error verifying payment.');
+            setPaying(false);
+            setPaymentStep(0);
+          }
+        },
+        prefill: {
+          name: user ? user.name : '',
+          email: user ? user.email : '',
+          contact: phone,
+        },
+        theme: {
+          color: '#d4af37',
+        },
+      };
+
+      const rzp = new window.Razorpay(rzpOptions);
+      rzp.on('payment.failed', function (response) {
+        setErrorMsg(`Payment failed: ${response.error.description}`);
+      });
+      rzp.open();
+
+    } catch (err) {
+      setErrorMsg('Network error establishing secure connection.');
+      setPaying(false);
+      setPaymentStep(0);
+    }
   };
 
   if (cartItems.length === 0 && !paying) {
@@ -206,12 +320,12 @@ export const Checkout = () => {
             <div className="flex gap-3 bg-white/[0.02] border border-border-color p-4 rounded-sm items-center mt-2">
               <CreditCard size={20} className="text-primary shrink-0" />
               <div className="text-xs text-text-secondary leading-relaxed">
-                <strong>Secured Sandbox Payment:</strong> Order checkout is completed in secure mock mode. No real cards needed.
+                <strong>Secured Razorpay Checkout:</strong> Payments are processed securely via the sandbox checkout widget.
               </div>
             </div>
 
             <button type="submit" className="btn btn-primary w-full py-4 mt-4">
-              Authorize Payment & Place Order
+              Proceed to Secure Payment
             </button>
           </form>
         </div>
@@ -266,7 +380,7 @@ export const Checkout = () => {
 
       </div>
 
-      {/* Simulated Banking Modal Overlay */}
+      {/* Simulated/Real Banking Modal Overlay */}
       {paying && (
         <div className="fixed inset-0 bg-black/90 z-[1001] flex items-center justify-center p-4">
           <div className="glass w-full max-w-[380px] rounded-md p-8 md:p-10 text-center flex flex-col items-center gap-6 border border-primary/20 shadow-2xl">
@@ -275,16 +389,16 @@ export const Checkout = () => {
             {paymentStep === 1 && (
               <>
                 <Loader2 size={36} className="animate-spin text-primary" />
-                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Validating credentials</h3>
-                <p className="text-xs text-text-secondary leading-relaxed">Connecting with the simulated sandbox authorization portal...</p>
+                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Creating Order</h3>
+                <p className="text-xs text-text-secondary leading-relaxed">Securing inventory and establishing contact with payment gateway...</p>
               </>
             )}
 
             {paymentStep === 2 && (
               <>
                 <Loader2 size={36} className="animate-spin text-primary" />
-                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Processing Transaction</h3>
-                <p className="text-xs text-text-secondary leading-relaxed">Debiting ₹{totalPrice.toLocaleString('en-IN')} from your demo account and allocating product inventory...</p>
+                <h3 className="text-base font-semibold text-text-primary uppercase tracking-wider">Verifying Transaction</h3>
+                <p className="text-xs text-text-secondary leading-relaxed">Verifying payment signature and finalizing inventory stock deductions...</p>
               </>
             )}
 
@@ -293,7 +407,7 @@ export const Checkout = () => {
                 <div className="w-12 h-12 rounded-full bg-success/15 border-2 border-success flex items-center justify-center text-success font-bold text-lg">
                   ✓
                 </div>
-                <h3 className="text-base font-bold text-success uppercase tracking-wider">Payment Successful!</h3>
+                <h3 className="text-base font-bold text-success uppercase tracking-wider">Payment Verified!</h3>
                 <p className="text-xs text-text-secondary leading-relaxed">Order Created. Dispatching confirmation email log...</p>
               </>
             )}
