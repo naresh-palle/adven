@@ -111,12 +111,12 @@ export const Home = () => {
             <div className="relative rounded-sm overflow-hidden h-[400px] sm:h-[550px] md:h-[620px] border border-white/5 group">
               <img 
                 src="https://images.unsplash.com/photo-1536766820879-059fcd98e0a0?w=800&auto=format&fit=crop&q=80" 
-                alt="Zara Style Menswear" 
+                alt="Lookbook Image" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               />
               <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 z-10 max-w-[90%] md:max-w-[380px] flex flex-col gap-3">
-                <span className="text-xs font-semibold tracking-[0.2em] text-primary">CHAPTER I</span>
-                <h3 className="text-xl md:text-2xl font-bold uppercase leading-tight text-white">THE TAILORED FORM</h3>
+                
+                
                 <p className="text-xs md:text-sm text-text-secondary leading-relaxed font-light">
                   A study in structure and geometry. Organic linen and pima cotton, woven to move without friction.
                 </p>
@@ -129,13 +129,6 @@ export const Home = () => {
           <div className="lg:col-span-5 flex flex-col gap-8 lg:pl-6">
             
             <div className="flex flex-col gap-4">
-              <span className="text-xs font-semibold tracking-[0.3em] text-primary">
-                EDITORIAL / COLLECTION '26
-              </span>
-              <h2 className="text-white text-3xl md:text-4xl font-extrabold uppercase leading-tight">
-                MINIMALIST <br />
-                ARCHITECTURE.
-              </h2>
               <div className="w-14 h-[2px] bg-primary"></div>
               <p className="text-text-secondary text-sm md:text-base leading-relaxed font-light mt-2">
                 Inspired by the clean silhouettes of Zara lookbooks and the technical execution of Nike sportswear, Adven brings a new vocabulary to menswear. Minimalist jackets, utility cargos, and fluid t-shirts.
