@@ -129,7 +129,7 @@ export const Home = () => {
           <div className="lg:col-span-5 flex flex-col gap-8 lg:pl-6">
             
             <div className="flex flex-col gap-4">
-              
+              <span className="text-xs font-semibold tracking-[0.3em] text-primary">
                 EDITORIAL / COLLECTION '26
               </span>
               <h2 className="text-white text-3xl md:text-4xl font-extrabold uppercase leading-tight">
