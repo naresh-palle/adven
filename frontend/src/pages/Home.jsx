@@ -79,7 +79,7 @@ export const Home = () => {
               <span className="gold-text">ESCAPE.</span>
             </h1>
 
-            <p className="text-sm sm:text-base md:text-xl text-text-secondary leading-relaxed max-w-[600px] font-body font-light">
+            <p className="text-sm sm:text-base md:text-xl text-white leading-relaxed max-w-[600px] font-body font-light">
               Discover technical fabrics fused with Zara-inspired high tailoring. Engineered for movement, crafted in pure luxury.
             </p>
 
@@ -129,7 +129,7 @@ export const Home = () => {
           <div className="lg:col-span-5 flex flex-col gap-8 lg:pl-6">
             
             <div className="flex flex-col gap-4">
-              <span className="text-xs font-semibold text-primary uppercase tracking-[0.25em]">
+              
                 EDITORIAL / COLLECTION '26
               </span>
               <h2 className="text-white text-3xl md:text-4xl font-extrabold uppercase leading-tight">
